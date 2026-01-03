@@ -39,8 +39,22 @@ class ProjectList extends Component
             ->latest()
             ->paginate($this->perPage);
 
+        // Statistics
+        $totalProjects = Project::count();
+        $draftProjects = Project::where('status', 'draft')->count();
+        $activeProjects = Project::where('status', 'active')->count();
+        $completedProjects = Project::where('status', 'completed')->count();
+        $totalStudents = \App\Models\Student::count();
+        $totalSchools = \App\Models\School::count();
+
         return view('livewire.admin.student.project-list', [
-            'projects' => $projects
+            'projects' => $projects,
+            'totalProjects' => $totalProjects,
+            'draftProjects' => $draftProjects,
+            'activeProjects' => $activeProjects,
+            'completedProjects' => $completedProjects,
+            'totalStudents' => $totalStudents,
+            'totalSchools' => $totalSchools,
         ])
             ->layout('layouts.dashboard')
             ->title('Data Project');

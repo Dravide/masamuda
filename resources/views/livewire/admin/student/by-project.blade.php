@@ -1,61 +1,90 @@
 <div>
     <div class="container">
-        <!-- Breadcrumb -->
-        <div class="row mb-3">
-            <div class="col-12">
+        <!-- Page Header -->
+        <div class="app-page-head d-flex flex-wrap gap-3 align-items-center justify-content-between">
+            <div class="clearfix">
+                <h1 class="app-page-title">{{ $project->name }}</h1>
                 <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"
-                                class="text-primary">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('admin.project.index') }}"
-                                class="text-primary">Data Project</a></li>
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item">
+                            <a href="{{ route('admin.dashboard') }}">Dashboard</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="{{ route('admin.project.index') }}">Data Project</a>
+                        </li>
                         <li class="breadcrumb-item active" aria-current="page">{{ $project->name }}</li>
                     </ol>
                 </nav>
             </div>
+            <button wire:click="openPropagationModal" class="btn btn-primary waves-effect waves-light">
+                <i class="fi fi-rr-picture me-1"></i> Propagasi Foto
+            </button>
         </div>
 
-        <!-- Project Info Card -->
-        <div class="card mb-4 border-0 shadow-sm bg-primary text-white">
-            <div class="card-body p-4">
-                <div class="d-flex align-items-center">
-                    <div
-                        class="avatar avatar-lg bg-white text-primary rounded-circle me-3 d-flex align-items-center justify-content-center">
-                        <i class="fi fi-rr-folder fs-2"></i>
-                    </div>
-                    <div>
-                        <h4 class="mb-1 text-white">{{ $project->name }}</h4>
-                        <div class="d-flex gap-3 text-white-50 small">
-                            <span><i class="fi fi-rr-school me-1"></i> {{ $project->school->name ?? '-' }}</span>
-                            <span><i class="fi fi-rr-calendar me-1"></i>
-                                {{ $project->academicYear->year_name ?? '-' }}</span>
-                            <span
-                                class="badge bg-{{ $project->status === 'active' ? 'success' : ($project->status === 'draft' ? 'secondary' : 'warning') }}">{{ ucfirst($project->status) }}</span>
+        <!-- Project Info Cards -->
+        <div class="row">
+            <div class="col-xxl-12">
+                <div class="row">
+                    <div class="col-xxl-3 col-lg-6 col-sm-6">
+                        <div class="card card-action action-border-primary p-1 position-relative">
+                            <div class="card-body d-flex gap-3 align-items-center p-4">
+                                <div class="clearfix pe-2 text-primary">
+                                    <i class="fi fi-sr-school fs-1"></i>
+                                </div>
+                                <div class="clearfix">
+                                    <div class="mb-1">Sekolah</div>
+                                    <h6 class="mb-0 fw-bold">{{ $project->school->name ?? '-' }}</h6>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Filter & Search -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <div class="search-box">
-                            <input type="text" class="form-control" placeholder="Cari Siswa, NIS, NISN..."
-                                wire:model.live.debounce.300ms="search">
+                    <div class="col-xxl-3 col-lg-6 col-sm-6">
+                        <div class="card card-action action-border-info p-1 position-relative">
+                            <div class="card-body d-flex gap-3 align-items-center p-4">
+                                <div class="clearfix pe-2 text-info">
+                                    <i class="fi fi-sr-calendar fs-1"></i>
+                                </div>
+                                <div class="clearfix">
+                                    <div class="mb-1">Tahun Ajaran</div>
+                                    <h6 class="mb-0 fw-bold">{{ $project->academicYear->year_name ?? '-' }}</h6>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-auto ms-auto d-flex gap-2">
-                        <button wire:click="openPropagationModal" class="btn btn-primary">
-                            <i class="fi fi-rr-picture me-1"></i> Propagasi Foto
-                        </button>
-                        <select class="form-select w-auto" wire:model.live="perPage">
-                            <option value="10">10 Data</option>
-                            <option value="25">25 Data</option>
-                            <option value="50">50 Data</option>
-                        </select>
+                    <div class="col-xxl-3 col-lg-6 col-sm-6">
+                        <div class="card card-action action-border-warning p-1 position-relative">
+                            <div class="card-body d-flex gap-3 align-items-center p-4">
+                                <div class="clearfix pe-2 text-warning">
+                                    <i class="fi fi-sr-users fs-1"></i>
+                                </div>
+                                <div class="clearfix">
+                                    <div class="mb-1">Jumlah Siswa</div>
+                                    <h3 class="mb-0 fw-bold">{{ number_format($students->total()) }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xxl-3 col-lg-6 col-sm-6">
+                        @php
+                            $statusColor = match ($project->status) {
+                                'active' => 'success',
+                                'draft' => 'secondary',
+                                'completed' => 'info',
+                                default => 'secondary'
+                            };
+                        @endphp
+                        <div class="card card-action action-border-{{ $statusColor }} p-1 position-relative">
+                            <div class="card-body d-flex gap-3 align-items-center p-4">
+                                <div class="clearfix pe-2 text-{{ $statusColor }}">
+                                    <i
+                                        class="fi fi-sr-{{ $project->status === 'active' ? 'check-circle' : ($project->status === 'completed' ? 'badge-check' : 'edit') }} fs-1"></i>
+                                </div>
+                                <div class="clearfix">
+                                    <div class="mb-1">Status</div>
+                                    <h6 class="mb-0 fw-bold">{{ ucfirst($project->status) }}</h6>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -244,8 +273,22 @@
             </div>
         @endif
 
-        <!-- Students Table -->
+        <!-- Students Table Card -->
         <div class="card">
+            <div class="card-header d-flex gap-3 flex-wrap align-items-center justify-content-between">
+                <h6 class="card-title mb-0">Daftar Siswa</h6>
+                <div class="clearfix d-flex align-items-center gap-3">
+                    <div class="search-box">
+                        <input type="text" class="form-control" placeholder="Cari Siswa, NIS, NISN..."
+                            wire:model.live.debounce.300ms="search">
+                    </div>
+                    <select class="form-select w-auto" wire:model.live="perPage">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                    </select>
+                </div>
+            </div>
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">

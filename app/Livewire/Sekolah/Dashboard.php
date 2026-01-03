@@ -2,22 +2,31 @@
 
 namespace App\Livewire\Sekolah;
 
+use App\Models\AcademicYear;
+use App\Models\Project;
+use App\Models\School;
+use App\Models\Student;
+use App\Models\StudentPhoto;
+use App\Models\AuditTrail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
-use App\Models\AuditTrail;
 
 class Dashboard extends Component
 {
     public $showPasswordChangeModal = false;
-    
+
     // Password Change Properties
     public $current_password;
     public $password;
     public $password_confirmation;
 
+    public $school;
+
     public function mount()
     {
+        $this->school = School::where('user_id', Auth::id())->first();
+
         if (Auth::check() && Auth::user()->password_change_required) {
             $this->showPasswordChangeModal = true;
         }
@@ -67,6 +76,47 @@ class Dashboard extends Component
 
     public function render()
     {
-        return view('livewire.sekolah.dashboard')->layout('layouts.dashboard');
+        // Get school and related statistics
+        $school = $this->school;
+        $activeAcademicYear = AcademicYear::where('is_active', true)->first();
+
+        // Statistics
+        $totalProjects = 0;
+        $draftProjects = 0;
+        $activeProjects = 0;
+        $completedProjects = 0;
+        $totalStudents = 0;
+        $totalPhotos = 0;
+        $recentProjects = collect();
+
+        if ($school) {
+            $totalProjects = Project::where('school_id', $school->id)->count();
+            $draftProjects = Project::where('school_id', $school->id)->where('status', 'draft')->count();
+            $activeProjects = Project::where('school_id', $school->id)->where('status', 'active')->count();
+            $completedProjects = Project::where('school_id', $school->id)->where('status', 'completed')->count();
+            $totalStudents = Student::where('school_id', $school->id)->count();
+            $totalPhotos = StudentPhoto::whereHas('student', function ($q) use ($school) {
+                $q->where('school_id', $school->id);
+            })->count();
+
+            $recentProjects = Project::where('school_id', $school->id)
+                ->with('academicYear')
+                ->withCount('students')
+                ->latest()
+                ->take(5)
+                ->get();
+        }
+
+        return view('livewire.sekolah.dashboard', [
+            'school' => $school,
+            'activeAcademicYear' => $activeAcademicYear,
+            'totalProjects' => $totalProjects,
+            'draftProjects' => $draftProjects,
+            'activeProjects' => $activeProjects,
+            'completedProjects' => $completedProjects,
+            'totalStudents' => $totalStudents,
+            'totalPhotos' => $totalPhotos,
+            'recentProjects' => $recentProjects,
+        ])->layout('layouts.dashboard')->title('Dashboard Sekolah');
     }
 }
