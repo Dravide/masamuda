@@ -23,6 +23,9 @@
                 <button wire:click="openPropagationModal" class="btn btn-primary waves-effect waves-light">
                     <i class="fi fi-rr-picture me-1"></i> Propagasi Foto
                 </button>
+                <button onclick="confirmResetPropagation()" class="btn btn-danger waves-effect waves-light">
+                    <i class="fi fi-rr-trash me-1"></i> Reset Propagasi
+                </button>
             </div>
         </div>
 
@@ -439,6 +442,23 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     @this.call('deletePhoto', path, photoId);
+                }
+            });
+        }
+
+        function confirmResetPropagation() {
+            Swal.fire({
+                title: 'Reset Propagasi?',
+                text: 'Yakin ingin menghapus SEMUA foto propagasi di project ini? Semua foto siswa yang diupload via project ini akan dihapus permanen. Siswa akan kembali tidak memiliki foto jika tidak ada backup.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, Reset Semua!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    @this.call('resetPropagation');
                 }
             });
         }

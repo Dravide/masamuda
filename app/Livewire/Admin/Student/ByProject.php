@@ -362,6 +362,27 @@ class ByProject extends Component
         $this->isProcessing = false;
     }
 
+    public function resetPropagation()
+    {
+        $photos = StudentPhoto::where('project_id', $this->project->id)->get();
+
+        foreach ($photos as $photo) {
+            if (Storage::disk('public')->exists($photo->file_path)) {
+                Storage::disk('public')->delete($photo->file_path);
+            }
+            $photo->delete();
+        }
+
+        $students = $this->project->students()->whereNotNull('photo')->get();
+        foreach ($students as $student) {
+            if (str_contains($student->photo, 'student-photos/' . $this->project->school_id . '/')) {
+                $student->update(['photo' => null]);
+            }
+        }
+
+        $this->dispatch('alert', [['type' => 'success', 'title' => 'Reset Berhasil', 'text' => 'Semua foto propagasi project ini telah dihapus.']]);
+    }
+
     private function rrmdir($dir)
     {
         if (is_dir($dir)) {
