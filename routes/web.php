@@ -25,7 +25,7 @@ use Illuminate\Support\Facades\Auth;
 Route::get('/', function () {
     if (Auth::check()) {
         $role = Auth::user()->role;
-        if (in_array($role, ['admin', 'sekolah', 'siswa'])) {
+        if (in_array($role, ['admin', 'sekolah', 'siswa', 'guru'])) {
             return redirect()->route($role . '.dashboard');
         }
     }
@@ -81,10 +81,17 @@ Route::middleware(['auth', 'force.password.change'])->group(function () {
         Route::get('/project/{project}/siswa/import', ProjectStudentImport::class)->name('project.siswa.import');
         Route::get('/foto', ProjectPhotoDownload::class)->name('foto.index');
         Route::get('/foto/{project}', ProjectPhotoDownload::class)->name('foto.show');
+        Route::get('/guru', \App\Livewire\Sekolah\Teacher\Index::class)->name('guru.index');
     });
 
     Route::middleware(['role:siswa'])->prefix('siswa')->name('siswa.')->group(function () {
         Route::get('/dashboard', SiswaDashboard::class)->name('dashboard');
+    });
+
+    Route::middleware(['role:guru'])->prefix('guru')->name('guru.')->group(function () {
+        Route::get('/dashboard', \App\Livewire\Guru\Dashboard::class)->name('dashboard');
+        Route::get('/project', \App\Livewire\Guru\Project\Index::class)->name('project.index');
+        Route::get('/project/{project}', \App\Livewire\Guru\Project\Detail::class)->name('project.detail');
     });
 
 });

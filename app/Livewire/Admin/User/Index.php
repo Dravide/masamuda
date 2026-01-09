@@ -224,6 +224,11 @@ class Index extends Component
             if ($student && $student->nisn) {
                 $newPassword = $student->nisn;
             }
+        } elseif ($user->role === 'guru') {
+            $teacher = \App\Models\Teacher::where('user_id', $user->id)->first();
+            if ($teacher && $teacher->nip) {
+                $newPassword = $teacher->nip;
+            }
         }
 
         $user->password = Hash::make($newPassword);

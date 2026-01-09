@@ -52,17 +52,18 @@
                         <span class="menu-label">Data Sekolah</span>
                     </a>
                 </li>
-                
+
                 <li class="menu-heading">
                     <span class="menu-label">Data</span>
                 </li>
                 <li class="menu-item {{ request()->routeIs('admin.project.*') ? 'active' : '' }}">
-                    <a class="menu-link {{ request()->routeIs('admin.project.*') ? 'active' : '' }}" href="{{ route('admin.project.index') }}">
+                    <a class="menu-link {{ request()->routeIs('admin.project.*') ? 'active' : '' }}"
+                        href="{{ route('admin.project.index') }}">
                         <i class="fi fi-rr-folder"></i>
                         <span class="menu-label">Data Project</span>
                     </a>
                 </li>
-                
+
                 <li class="menu-heading">
                     <span class="menu-label">Sistem</span>
                 </li>
@@ -85,20 +86,43 @@
                 <li class="menu-heading">
                     <span class="menu-label">Data</span>
                 </li>
-                <li class="menu-item {{ request()->routeIs('sekolah.project.index', 'sekolah.project.siswa', 'sekolah.project.siswa.import') ? 'active' : '' }}">
-                    <a class="menu-link {{ request()->routeIs('sekolah.project.index', 'sekolah.project.siswa', 'sekolah.project.siswa.import') ? 'active' : '' }}" href="{{ route('sekolah.project.index') }}">
+                <li
+                    class="menu-item {{ request()->routeIs('sekolah.project.index', 'sekolah.project.siswa', 'sekolah.project.siswa.import') ? 'active' : '' }}">
+                    <a class="menu-link {{ request()->routeIs('sekolah.project.index', 'sekolah.project.siswa', 'sekolah.project.siswa.import') ? 'active' : '' }}"
+                        href="{{ route('sekolah.project.index') }}">
                         <i class="fi fi-rr-folder"></i>
                         <span class="menu-label">Project</span>
                     </a>
                 </li>
-                
+                <li class="menu-item {{ request()->routeIs('sekolah.guru.index') ? 'active' : '' }}">
+                    <a class="menu-link" href="{{ route('sekolah.guru.index') }}">
+                        <i class="fi fi-rr-users-alt"></i>
+                        <span class="menu-label">Data Guru</span>
+                    </a>
+                </li>
+
                 <li class="menu-heading">
                     <span class="menu-label">Unduhan</span>
                 </li>
                 <li class="menu-item {{ request()->routeIs('sekolah.foto.*') ? 'active' : '' }}">
-                    <a class="menu-link {{ request()->routeIs('sekolah.foto.*') ? 'active' : '' }}" href="{{ route('sekolah.foto.index') }}">
+                    <a class="menu-link {{ request()->routeIs('sekolah.foto.*') ? 'active' : '' }}"
+                        href="{{ route('sekolah.foto.index') }}">
                         <i class="fi fi-rr-picture"></i>
                         <span class="menu-label">Unduh Foto</span>
+                    </a>
+                </li>
+            @endif
+
+            <!-- Guru Menu -->
+            @if(Auth::user()->hasRole('guru'))
+                <li class="menu-heading">
+                    <span class="menu-label">Menu Guru</span>
+                </li>
+                <li class="menu-item {{ request()->routeIs('guru.project.*') ? 'active' : '' }}">
+                    <a class="menu-link {{ request()->routeIs('guru.project.*') ? 'active' : '' }}"
+                        href="{{ route('guru.project.index') }}">
+                        <i class="fi fi-rr-folder"></i>
+                        <span class="menu-label">Project</span>
                     </a>
                 </li>
             @endif

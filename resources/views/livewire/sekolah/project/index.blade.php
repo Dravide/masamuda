@@ -217,78 +217,85 @@
 
     <!-- Modal Form -->
     @if($showModal)
-    <div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5);" tabindex="-1" role="dialog" aria-modal="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">{{ $isEdit ? 'Edit Project' : 'Tambah Project Baru' }}</h5>
-                    <button wire:click="closeModal" type="button" class="btn-close" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form wire:submit.prevent="{{ $isEdit ? 'update' : 'store' }}">
-                        <div class="mb-3">
-                            <label class="form-label">Nama Project <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control @error('name') is-invalid @enderror" wire:model="name" placeholder="Nama Project">
-                            @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                        </div>
+        <div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5);" tabindex="-1" role="dialog"
+            aria-modal="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">{{ $isEdit ? 'Edit Project' : 'Tambah Project Baru' }}</h5>
+                        <button wire:click="closeModal" type="button" class="btn-close" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form wire:submit.prevent="{{ $isEdit ? 'update' : 'store' }}">
+                            <div class="mb-3">
+                                <label class="form-label">Nama Project <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                    wire:model="name" placeholder="Nama Project">
+                                @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Tahun Pelajaran <span class="text-danger">*</span></label>
-                                <select class="form-select @error('academic_year_id') is-invalid @enderror" wire:model="academic_year_id">
-                                    <option value="">Pilih Tahun</option>
-                                    @foreach($academicYears as $year)
-                                        <option value="{{ $year->id }}">{{ $year->year_name }}</option>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Tahun Pelajaran <span class="text-danger">*</span></label>
+                                    <select class="form-select @error('academic_year_id') is-invalid @enderror"
+                                        wire:model="academic_year_id">
+                                        <option value="">Pilih Tahun</option>
+                                        @foreach($academicYears as $year)
+                                            <option value="{{ $year->id }}">{{ $year->year_name }} -
+                                                {{ ucfirst($year->semester) }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('academic_year_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Jenis Project <span class="text-danger">*</span></label>
+                                    <select class="form-select @error('type') is-invalid @enderror" wire:model="type">
+                                        <option value="">Pilih Jenis</option>
+                                        @foreach($projectTypes as $pType)
+                                            <option value="{{ $pType }}">{{ $pType }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('type') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Tanggal Pelaksanaan</label>
+                                <input type="date" class="form-control @error('date') is-invalid @enderror"
+                                    wire:model="date">
+                                @error('date') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Deskripsi</label>
+                                <textarea class="form-control @error('description') is-invalid @enderror"
+                                    wire:model="description" rows="3" placeholder="Deskripsi Project"></textarea>
+                                @error('description') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Status <span class="text-danger">*</span></label>
+                                <select class="form-select @error('status') is-invalid @enderror" wire:model="status">
+                                    @foreach($projectStatuses as $key => $label)
+                                        <option value="{{ $key }}">{{ $label }}</option>
                                     @endforeach
                                 </select>
-                                @error('academic_year_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                @error('status') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Jenis Project <span class="text-danger">*</span></label>
-                                <select class="form-select @error('type') is-invalid @enderror" wire:model="type">
-                                    <option value="">Pilih Jenis</option>
-                                    @foreach($projectTypes as $pType)
-                                        <option value="{{ $pType }}">{{ $pType }}</option>
-                                    @endforeach
-                                </select>
-                                @error('type') <div class="invalid-feedback">{{ $message }}</div> @enderror
+
+                            <div class="text-end">
+                                <button wire:click="closeModal" type="button"
+                                    class="btn btn-light waves-effect">Batal</button>
+                                <button type="submit" class="btn btn-primary waves-effect waves-light">
+                                    <span wire:loading.remove>{{ $isEdit ? 'Update' : 'Simpan' }}</span>
+                                    <span wire:loading>Loading...</span>
+                                </button>
                             </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Tanggal Pelaksanaan</label>
-                            <input type="date" class="form-control @error('date') is-invalid @enderror" wire:model="date">
-                            @error('date') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Deskripsi</label>
-                            <textarea class="form-control @error('description') is-invalid @enderror" wire:model="description" rows="3" placeholder="Deskripsi Project"></textarea>
-                            @error('description') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Status <span class="text-danger">*</span></label>
-                            <select class="form-select @error('status') is-invalid @enderror" wire:model="status">
-                                @foreach($projectStatuses as $key => $label)
-                                    <option value="{{ $key }}">{{ $label }}</option>
-                                @endforeach
-                            </select>
-                            @error('status') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                        </div>
-
-                        <div class="text-end">
-                            <button wire:click="closeModal" type="button" class="btn btn-light waves-effect">Batal</button>
-                            <button type="submit" class="btn btn-primary waves-effect waves-light">
-                                <span wire:loading.remove>{{ $isEdit ? 'Update' : 'Simpan' }}</span>
-                                <span wire:loading>Loading...</span>
-                            </button>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     @endif
 
     <script>
