@@ -119,6 +119,9 @@
                                                 </div>
                                             </td>
                                             <td>
+                                                <button wire:click="resetPassword({{ $user->id }})" class="btn btn-sm btn-icon btn-action-warning" onclick="confirm('Reset password user ini? Password akan kembali ke NPSN (Sekolah), NISN (Siswa), atau Default.') || event.stopImmediatePropagation()" title="Reset Password" data-bs-toggle="tooltip">
+                                                    <i class="fi fi-rr-key"></i>
+                                                </button>
                                                 <button wire:click="edit({{ $user->id }})" class="btn btn-sm btn-icon btn-action-primary">
                                                     <i class="fi fi-rr-edit"></i>
                                                 </button>

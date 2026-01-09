@@ -16,9 +16,14 @@
                     </ol>
                 </nav>
             </div>
-            <button wire:click="openPropagationModal" class="btn btn-primary waves-effect waves-light">
-                <i class="fi fi-rr-picture me-1"></i> Propagasi Foto
-            </button>
+            <div class="d-flex gap-2">
+                <button wire:click="exportExcel" class="btn btn-success waves-effect waves-light">
+                    <i class="fi fi-rr-file-excel me-1"></i> Export Excel
+                </button>
+                <button wire:click="openPropagationModal" class="btn btn-primary waves-effect waves-light">
+                    <i class="fi fi-rr-picture me-1"></i> Propagasi Foto
+                </button>
+            </div>
         </div>
 
         <!-- Project Info Cards -->
@@ -282,6 +287,11 @@
                         <input type="text" class="form-control" placeholder="Cari Siswa, NIS, NISN..."
                             wire:model.live.debounce.300ms="search">
                     </div>
+                    <select class="form-select w-auto" wire:model.live="filterPhoto">
+                        <option value="">Semua Foto</option>
+                        <option value="with">Sudah Upload</option>
+                        <option value="without">Belum Upload</option>
+                    </select>
                     <select class="form-select w-auto" wire:model.live="perPage">
                         <option value="10">10</option>
                         <option value="25">25</option>
@@ -311,6 +321,10 @@
                             </th>
                             <th>Tanggal Lahir</th>
                             <th>WhatsApp</th>
+                            <th wire:click="sortBy('photos_count')" style="cursor: pointer;">
+                                Jumlah Foto @if($sortColumn == 'photos_count') <i
+                                class="fi fi-rr-arrow-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i> @endif
+                            </th>
                             <th>Foto</th>
                         </tr>
                     </thead>
@@ -353,6 +367,11 @@
                                     @else
                                         <span class="text-muted small">-</span>
                                     @endif
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ $student->photos_count > 0 ? 'primary' : 'secondary' }}">
+                                        {{ $student->photos_count }} Foto
+                                    </span>
                                 </td>
                                 <td>
                                     <button wire:click="openPhotoModal('{{ $student->id }}')"

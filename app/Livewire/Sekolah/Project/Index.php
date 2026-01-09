@@ -21,6 +21,13 @@ class Index extends Component
     public $sortColumn = 'created_at';
     public $sortDirection = 'desc';
 
+    // Helpers
+    public $school;
+    public $projectStatuses = [];
+    public $academicYears = [];
+    public $projectTypes = [];
+    public $activeAcademicYear = null;
+
     // Modal & Form
     public $showModal = false;
     public $isEdit = false;
@@ -34,13 +41,6 @@ class Index extends Component
     public $date;
     public $status = 'draft';
 
-    // Helpers
-    public $school;
-    public $academicYears = [];
-    public $projectTypes = [];
-    public $projectStatuses = [];
-    public $activeAcademicYear = null;
-
     protected $queryString = [
         'search' => ['except' => ''],
         'perPage' => ['except' => 10],
@@ -49,9 +49,9 @@ class Index extends Component
     public function mount()
     {
         $this->school = School::where('user_id', Auth::id())->firstOrFail();
-        $this->academicYears = AcademicYear::orderBy('year_name', 'desc')->get();
-        $this->projectTypes = Project::TYPES;
         $this->projectStatuses = Project::STATUSES;
+        $this->projectTypes = Project::TYPES;
+        $this->academicYears = AcademicYear::orderBy('year_name', 'desc')->get();
         $this->activeAcademicYear = AcademicYear::where('is_active', true)->first();
     }
 
@@ -73,7 +73,8 @@ class Index extends Component
     public function render()
     {
         $query = Project::where('school_id', $this->school->id)
-            ->with('academicYear');
+            ->with('academicYear')
+            ->withCount('students');
 
         if ($this->search) {
             $query->where(function ($q) {
@@ -86,16 +87,24 @@ class Index extends Component
         $projects = $query->orderBy($this->sortColumn, $this->sortDirection)
             ->paginate($this->perPage);
 
+        // Statistics
+        $totalProjects = Project::where('school_id', $this->school->id)->count();
+        $draftProjects = Project::where('school_id', $this->school->id)->where('status', 'draft')->count();
+        $activeProjects = Project::where('school_id', $this->school->id)->where('status', 'active')->count();
+        $completedProjects = Project::where('school_id', $this->school->id)->where('status', 'completed')->count();
+
         return view('livewire.sekolah.project.index', [
-            'projects' => $projects
+            'projects' => $projects,
+            'totalProjects' => $totalProjects,
+            'draftProjects' => $draftProjects,
+            'activeProjects' => $activeProjects,
+            'completedProjects' => $completedProjects,
         ])->layout('layouts.dashboard')->title('Project');
     }
-
     public function create()
     {
         $this->resetForm();
         $this->isEdit = false;
-        // Auto-set to active academic year
         if ($this->activeAcademicYear) {
             $this->academic_year_id = $this->activeAcademicYear->id;
         }
@@ -142,7 +151,7 @@ class Index extends Component
         $this->dispatch('alert', [
             'type' => 'success',
             'title' => 'Berhasil!',
-            'text' => 'Project Berhasil Disimpan.',
+            'text' => 'Project berhasil ditambahkan.',
         ]);
 
         $this->closeModal();
@@ -173,7 +182,7 @@ class Index extends Component
         $this->dispatch('alert', [
             'type' => 'success',
             'title' => 'Berhasil!',
-            'text' => 'Project Berhasil Diperbarui.',
+            'text' => 'Project berhasil diperbarui.',
         ]);
 
         $this->closeModal();
@@ -187,7 +196,7 @@ class Index extends Component
         $this->dispatch('alert', [
             'type' => 'success',
             'title' => 'Terhapus!',
-            'text' => 'Project Berhasil Dihapus.',
+            'text' => 'Project berhasil dihapus.',
         ]);
     }
 

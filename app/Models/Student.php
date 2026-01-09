@@ -19,6 +19,7 @@ class Student extends Model
         'address',
         'whatsapp',
         'email',
+        'birth_place',
         'birth_date',
         'major',
         'grade',

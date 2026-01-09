@@ -42,18 +42,30 @@
             </div>
             <div class="vr my-3"></div>
             <div class="dropdown text-end ms-sm-3 ms-2 ms-lg-4">
+                @php
+                    $userSchool = null;
+                    if (Auth::user()->role === 'sekolah') {
+                        $userSchool = \App\Models\School::where('user_id', Auth::id())->first();
+                    }
+                @endphp
                 <a href="#" class="d-flex align-items-center py-2" data-bs-toggle="dropdown"
                     data-bs-auto-close="outside" aria-expanded="true">
                     <div class="text-end me-2 d-none d-lg-inline-block">
-                        <div class="fw-bold text-dark">{{ Auth::user()->name }}</div>
+                        <div class="fw-bold text-dark">{{ $userSchool ? $userSchool->name : Auth::user()->name }}</div>
                         <small class="text-body d-block lh-sm">
                             <i class="fi fi-rr-angle-down text-3xs me-1"></i> {{ ucfirst(Auth::user()->role) }}
                         </small>
                     </div>
-                    <div class="avatar avatar-sm rounded-circle avatar-status-success">
-                        <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : asset('template/assets/images/avatar/avatar1.webp') }}"
-                            alt="">
-                    </div>
+                    @if($userSchool && $userSchool->logo)
+                        <div class="avatar avatar-sm rounded-circle overflow-hidden">
+                            <img src="{{ asset('storage/' . $userSchool->logo) }}" alt="{{ $userSchool->name }}" style="object-fit: cover;">
+                        </div>
+                    @else
+                        <div class="avatar avatar-sm rounded-circle avatar-status-success">
+                            <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : asset('template/assets/images/avatar/avatar1.webp') }}"
+                                alt="">
+                        </div>
+                    @endif
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end w-225px mt-1">
                     <li>
@@ -64,7 +76,7 @@
                             </div>
                             <div class="ms-2">
                                 <div class="fw-bold text-dark">{{ Auth::user()->name }}</div>
-                                <small class="text-body d-block lh-sm">{{ Auth::user()->email }}</small>
+                                <small class="text-body d-block lh-sm">{{ Auth::user()->username }}</small>
                             </div>
                         </div>
                     </li>

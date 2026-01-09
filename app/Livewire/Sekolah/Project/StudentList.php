@@ -44,6 +44,7 @@ class StudentList extends Component
     public $grade;
     public $class_name;
     public $address;
+    public $birth_place;
     public $birth_date;
     public $major;
 
@@ -69,8 +70,8 @@ class StudentList extends Component
             abort(403);
         }
 
-        // Verify project is active
-        if ($project->status !== 'active') {
+        // Verify project is active or completed
+        if (!in_array($project->status, ['active', 'completed'])) {
             abort(403, 'Project belum diaktifkan oleh Admin.');
         }
 
@@ -81,6 +82,11 @@ class StudentList extends Component
             // Fetch active majors from database
             $this->availableMajors = Major::getActive()->pluck('name')->toArray();
         }
+    }
+
+    public function getIsReadOnlyProperty()
+    {
+        return $this->project->status === 'completed';
     }
 
     public function updatingSearch()
@@ -205,6 +211,7 @@ class StudentList extends Component
         $this->grade = $student->grade;
         $this->class_name = $student->class_name;
         $this->address = $student->address;
+        $this->birth_place = $student->birth_place;
         $this->birth_date = $student->birth_date->format('Y-m-d');
         $this->major = $student->major;
 
@@ -214,6 +221,14 @@ class StudentList extends Component
 
     public function store()
     {
+        if ($this->isReadOnly) {
+            $this->dispatch('alert', [
+                'type' => 'error',
+                'title' => 'Error!',
+                'text' => 'Project sudah selesai. Tidak dapat menambah siswa.',
+            ]);
+            return;
+        }
         $this->validate([
             'nis' => 'required|string|max:50',
             'nisn' => 'required|string|max:50',
@@ -238,6 +253,7 @@ class StudentList extends Component
             'grade' => $this->grade,
             'class_name' => $this->class_name,
             'address' => $this->address,
+            'birth_place' => $this->birth_place,
             'birth_date' => $this->birth_date,
             'major' => $this->major,
         ]);
@@ -253,6 +269,14 @@ class StudentList extends Component
 
     public function update()
     {
+        if ($this->isReadOnly) {
+            $this->dispatch('alert', [
+                'type' => 'error',
+                'title' => 'Error!',
+                'text' => 'Project sudah selesai. Tidak dapat mengubah data.',
+            ]);
+            return;
+        }
         $this->validate([
             'nis' => 'required|string|max:50',
             'nisn' => 'required|string|max:50',
@@ -279,6 +303,7 @@ class StudentList extends Component
             'grade' => $this->grade,
             'class_name' => $this->class_name,
             'address' => $this->address,
+            'birth_place' => $this->birth_place,
             'birth_date' => $this->birth_date,
             'major' => $this->major,
         ]);
@@ -294,6 +319,14 @@ class StudentList extends Component
 
     public function delete($id)
     {
+        if ($this->isReadOnly) {
+            $this->dispatch('alert', [
+                'type' => 'error',
+                'title' => 'Error!',
+                'text' => 'Project sudah selesai. Tidak dapat menghapus data.',
+            ]);
+            return;
+        }
         $student = Student::where('school_id', $this->school->id)
             ->findOrFail($id);
 
@@ -319,7 +352,7 @@ class StudentList extends Component
 
     public function resetForm()
     {
-        $this->reset(['nis', 'nisn', 'name', 'whatsapp', 'email', 'grade', 'class_name', 'address', 'birth_date', 'studentId']);
+        $this->reset(['nis', 'nisn', 'name', 'whatsapp', 'email', 'grade', 'class_name', 'address', 'birth_place', 'birth_date', 'studentId']);
 
         if (!$this->isSmp) {
             $this->reset('major');
@@ -392,6 +425,14 @@ class StudentList extends Component
 
     public function copyStudents()
     {
+        if ($this->isReadOnly) {
+            $this->dispatch('alert', [
+                'type' => 'error',
+                'title' => 'Error!',
+                'text' => 'Project sudah selesai. Tidak dapat menyalin siswa.',
+            ]);
+            return;
+        }
         if (empty($this->selectedStudents)) {
             $this->dispatch('alert', [
                 'type' => 'error',

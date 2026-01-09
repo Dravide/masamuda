@@ -3,6 +3,8 @@
 namespace App\Livewire\Admin\User;
 
 use App\Models\User;
+use App\Models\School;
+use App\Models\Student;
 use App\Models\AuditTrail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -201,6 +203,34 @@ class Index extends Component
         $this->logAudit('update', "User {$user->username} {$status}");
 
         session()->flash('message', "User berhasil {$status}.");
+    }
+
+    public function resetPassword($id)
+    {
+        $user = User::findOrFail($id);
+        $newPassword = 'masamuda2026';
+
+        if ($user->role === 'sekolah') {
+            $school = School::where('user_id', $user->id)->first();
+            if ($school && $school->npsn) {
+                $newPassword = $school->npsn;
+            }
+        } elseif ($user->role === 'siswa') {
+            $student = Student::where('email', $user->email)->first();
+            if (!$student) {
+                $student = Student::where('nis', $user->username)->orWhere('nisn', $user->username)->first();
+            }
+
+            if ($student && $student->nisn) {
+                $newPassword = $student->nisn;
+            }
+        }
+
+        $user->password = Hash::make($newPassword);
+        $user->save();
+
+        $this->logAudit('update', "Reset password user: {$user->username}");
+        session()->flash('message', "Password berhasil direset menjadi: {$newPassword}");
     }
 
     public function closeModal()

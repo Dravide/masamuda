@@ -35,9 +35,15 @@
                                     siswa</strong> terdaftar.
                             </p>
                         </div>
-                        <div class="col-sm-5 text-center text-sm-end align-self-end">
-                            <img src="{{ asset('template/assets/images/media/svg/media2.svg') }}" class="img-fluid"
-                                alt="" style="max-height: 150px;">
+                        <div class="col-sm-5 text-center text-sm-end align-self-center">
+                            @if($school && $school->logo)
+                                <img src="{{ asset('storage/' . $school->logo) }}" class="img-fluid rounded-3"
+                                    alt="{{ $school->name }}" style="max-height: 120px; object-fit: contain;">
+                            @else
+                                <div class="avatar avatar-xxl bg-primary-subtle text-primary rounded-circle mx-auto">
+                                    <i class="fi fi-sr-school fs-1"></i>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -140,7 +146,7 @@
         <!-- Recent Projects -->
         <div class="col-12">
             <div class="card">
-                <div class="card-header d-flex align-items-center justify-content-between border-0 pb-0">
+                <div class="card-header d-flex align-items-center justify-content-between border-0 pb-0 mb-3">
                     <h6 class="card-title mb-0">Project Terbaru</h6>
                     <a href="{{ route('sekolah.project.index') }}" class="btn btn-sm btn-outline-primary waves-effect">
                         Lihat Semua

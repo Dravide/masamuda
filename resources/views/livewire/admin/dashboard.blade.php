@@ -12,7 +12,7 @@
     </div>
     @if($activeAcademicYear)
       <span class="badge bg-primary-subtle text-primary fs-6 py-2 px-3">
-        <i class="fi fi-rr-calendar me-1"></i> {{ $activeAcademicYear->year_name }}
+        <i class="fi fi-rr-calendar mb-2"></i> {{ $activeAcademicYear->year_name }}
         ({{ $activeAcademicYear->semester == 'ganjil' ? 'Ganjil' : 'Genap' }})
       </span>
     @endif

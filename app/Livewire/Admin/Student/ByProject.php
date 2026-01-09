@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use ZipArchive;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ProjectStudentsExport;
 
 class ByProject extends Component
 {
@@ -24,6 +26,7 @@ class ByProject extends Component
     public $perPage = 10;
     public $sortColumn = 'name';
     public $sortDirection = 'asc';
+    public $filterPhoto = '';
 
     // Propagation Properties
     public $propagationFile;
@@ -46,6 +49,7 @@ class ByProject extends Component
         'perPage' => ['except' => 10],
         'sortColumn' => ['except' => 'name'],
         'sortDirection' => ['except' => 'asc'],
+        'filterPhoto' => ['except' => ''],
     ];
 
     public function mount(Project $project)
@@ -56,6 +60,11 @@ class ByProject extends Component
     public function updatingSearch()
     {
         $this->resetPage();
+    }
+
+    public function exportExcel()
+    {
+        return Excel::download(new ProjectStudentsExport($this->project->id), 'Daftar_Siswa_' . Str::slug($this->project->name) . '.xlsx');
     }
 
     public function openPhotoModal($studentId)
@@ -377,6 +386,21 @@ class ByProject extends Component
                     $q->where('name', 'like', '%' . $this->search . '%')
                         ->orWhere('nis', 'like', '%' . $this->search . '%')
                         ->orWhere('nisn', 'like', '%' . $this->search . '%');
+                });
+            })
+            ->withCount([
+                'photos' => function ($query) {
+                    $query->where('project_id', $this->project->id);
+                }
+            ])
+            ->when($this->filterPhoto === 'with', function ($q) {
+                $q->whereHas('photos', function ($q) {
+                    $q->where('project_id', $this->project->id);
+                });
+            })
+            ->when($this->filterPhoto === 'without', function ($q) {
+                $q->whereDoesntHave('photos', function ($q) {
+                    $q->where('project_id', $this->project->id);
                 });
             })
             ->orderBy($this->sortColumn, $this->sortDirection)

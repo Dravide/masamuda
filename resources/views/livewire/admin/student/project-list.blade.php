@@ -13,6 +13,9 @@
                     </ol>
                 </nav>
             </div>
+            <button wire:click="create" class="btn btn-primary waves-effect waves-light">
+                <i class="fi fi-rr-plus me-1"></i> Tambah Project
+            </button>
         </div>
 
         <!-- Statistics Cards -->
@@ -101,7 +104,7 @@
             </div>
         </div>
 
-        <!-- Filter & Search -->
+        <!-- Table Card -->
         <div class="card">
             <div class="card-header d-flex gap-3 flex-wrap align-items-center justify-content-between">
                 <h6 class="card-title mb-0">Daftar Project</h6>
@@ -192,9 +195,18 @@
                                 </td>
                                 <td class="text-end">
                                     <a href="{{ route('admin.project.show', $project->id) }}"
-                                        class="btn btn-sm btn-primary waves-effect waves-light">
-                                        <i class="fi fi-rr-users-alt me-1"></i> Lihat Siswa
+                                        class="btn btn-sm btn-outline-primary waves-effect">
+                                        <i class="fi fi-rr-users-alt me-1"></i> Siswa
                                     </a>
+                                    <button wire:click="edit({{ $project->id }})"
+                                        class="btn btn-sm btn-icon btn-outline-warning waves-effect">
+                                        <i class="fi fi-rr-edit"></i>
+                                    </button>
+                                    <button wire:click="delete({{ $project->id }})"
+                                        class="btn btn-sm btn-icon btn-outline-danger waves-effect"
+                                        onclick="confirm('Hapus project ini? Data siswa dalam project juga akan terhapus.') || event.stopImmediatePropagation()">
+                                        <i class="fi fi-rr-trash"></i>
+                                    </button>
                                 </td>
                             </tr>
                         @empty
@@ -217,6 +229,102 @@
             @endif
         </div>
     </div>
+
+    <!-- Modal Form -->
+    @if($showModal)
+        <div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5); overflow-y: auto;"
+            tabindex="-1" role="dialog" aria-modal="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">{{ $isEdit ? 'Edit Project' : 'Tambah Project Baru' }}</h5>
+                        <button wire:click="closeModal" type="button" class="btn-close" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form wire:submit.prevent="{{ $isEdit ? 'update' : 'store' }}">
+                            <div class="mb-3">
+                                <label class="form-label">Sekolah <span class="text-danger">*</span></label>
+                                <select class="form-select @error('school_id') is-invalid @enderror" wire:model="school_id">
+                                    <option value="">Pilih Sekolah</option>
+                                    @foreach($schools as $school)
+                                        <option value="{{ $school->id }}">{{ $school->name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('school_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Nama Project <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                    wire:model="name" placeholder="Nama Project">
+                                @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Tahun Pelajaran <span class="text-danger">*</span></label>
+                                    <select class="form-select @error('academic_year_id') is-invalid @enderror"
+                                        wire:model="academic_year_id">
+                                        <option value="">Pilih Tahun Pelajaran</option>
+                                        @foreach($academicYears as $year)
+                                            <option value="{{ $year->id }}">{{ $year->year_name }} - Semester
+                                                {{ ucfirst($year->semester) }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('academic_year_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Jenis Project <span class="text-danger">*</span></label>
+                                    <select class="form-select @error('type') is-invalid @enderror" wire:model="type">
+                                        <option value="">Pilih Jenis</option>
+                                        @foreach($projectTypes as $t)
+                                            <option value="{{ $t }}">{{ $t }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('type') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Deskripsi</label>
+                                <textarea class="form-control @error('description') is-invalid @enderror"
+                                    wire:model="description" rows="3" placeholder="Deskripsi Project (opsional)"></textarea>
+                                @error('description') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Tanggal</label>
+                                    <input type="date" class="form-control @error('date') is-invalid @enderror"
+                                        wire:model="date">
+                                    @error('date') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Status <span class="text-danger">*</span></label>
+                                    <select class="form-select @error('status') is-invalid @enderror" wire:model="status">
+                                        @foreach($projectStatuses as $key => $label)
+                                            <option value="{{ $key }}">{{ $label }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('status') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+
+                            <div class="text-end mt-4">
+                                <button wire:click="closeModal" type="button"
+                                    class="btn btn-light waves-effect">Batal</button>
+                                <button type="submit" class="btn btn-primary waves-effect waves-light">
+                                    <span wire:loading.remove>{{ $isEdit ? 'Update' : 'Simpan' }}</span>
+                                    <span wire:loading>Loading...</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 
     <script>
         document.addEventListener('livewire:initialized', () => {

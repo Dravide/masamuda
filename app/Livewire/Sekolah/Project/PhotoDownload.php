@@ -36,7 +36,7 @@ class PhotoDownload extends Component
 
         // Load active projects for this school
         $this->projects = Project::where('school_id', $this->school->id)
-            ->where('status', 'active')
+            ->whereIn('status', ['active', 'completed'])
             ->with('academicYear')
             ->withCount([
                 'students' => function ($q) {
