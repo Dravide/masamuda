@@ -14,6 +14,7 @@ use ZipArchive;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ProjectStudentsExport;
+use App\Models\Major;
 
 class ByProject extends Component
 {
@@ -42,6 +43,26 @@ class ByProject extends Component
     public $selectedStudent = null;
     public $studentPhotos = [];
 
+    // Student Form Properties
+    public $showModal = false;
+    public $isEdit = false;
+    public $studentId;
+
+    public $nis;
+    public $nisn;
+    public $name;
+    public $whatsapp;
+    public $email;
+    public $grade;
+    public $class_name;
+    public $address;
+    public $birth_place;
+    public $birth_date;
+    public $major;
+
+    public $availableMajors = [];
+    public $isSmp = false;
+
     public $allStudents = [];
 
     protected $queryString = [
@@ -55,6 +76,13 @@ class ByProject extends Component
     public function mount(Project $project)
     {
         $this->project = $project;
+        $this->isSmp = $project->school->jenjang === 'smp';
+
+        if (!$this->isSmp) {
+            $this->availableMajors = Major::where('is_active', true)->pluck('name')->toArray();
+        } else {
+            $this->major = 'UMUM';
+        }
     }
 
     public function updatingSearch()
@@ -145,6 +173,161 @@ class ByProject extends Component
         } else {
             $this->sortColumn = $column;
             $this->sortDirection = 'asc';
+        }
+    }
+
+    public function create()
+    {
+        $this->resetForm();
+        $this->isEdit = false;
+        $this->showModal = true;
+    }
+
+    public function edit($id)
+    {
+        $student = Student::where('project_id', $this->project->id)->findOrFail($id);
+
+        $this->studentId = $student->id;
+        $this->nis = $student->nis;
+        $this->nisn = $student->nisn;
+        $this->name = $student->name;
+        $this->whatsapp = $student->whatsapp;
+        $this->email = $student->email;
+        $this->grade = $student->grade;
+        $this->class_name = $student->class_name;
+        $this->address = $student->address;
+        $this->birth_place = $student->birth_place;
+        $this->birth_date = $student->birth_date ? $student->birth_date->format('Y-m-d') : null;
+        $this->major = $student->major;
+
+        $this->isEdit = true;
+        $this->showModal = true;
+    }
+
+    public function store()
+    {
+        $this->validate([
+            'nis' => 'required|string|max:50',
+            'nisn' => 'required|string|max:50',
+            'name' => 'required|string|max:255',
+            'whatsapp' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:255',
+            'grade' => 'required|string|max:10',
+            'class_name' => 'required|string|max:50',
+            'address' => 'nullable|string',
+            'birth_date' => 'nullable|date',
+            'major' => 'required|string',
+        ]);
+
+        Student::create([
+            'school_id' => $this->project->school_id,
+            'project_id' => $this->project->id,
+            'nis' => $this->nis,
+            'nisn' => $this->nisn,
+            'name' => $this->name,
+            'whatsapp' => $this->whatsapp,
+            'email' => $this->email,
+            'grade' => $this->grade,
+            'class_name' => $this->class_name,
+            'address' => $this->address,
+            'birth_place' => $this->birth_place,
+            'birth_date' => $this->birth_date,
+            'major' => $this->major,
+        ]);
+
+        $this->dispatch('alert', [
+            'type' => 'success',
+            'title' => 'Berhasil!',
+            'text' => 'Data Siswa Berhasil Disimpan.',
+        ]);
+
+        $this->closeModal();
+    }
+
+    public function update()
+    {
+        $this->validate([
+            'nis' => 'required|string|max:50',
+            'nisn' => 'required|string|max:50',
+            'name' => 'required|string|max:255',
+            'whatsapp' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:255',
+            'grade' => 'required|string|max:10',
+            'class_name' => 'required|string|max:50',
+            'address' => 'nullable|string',
+            'birth_date' => 'nullable|date',
+            'major' => 'required|string',
+        ]);
+
+        $student = Student::where('project_id', $this->project->id)->findOrFail($this->studentId);
+
+        $student->update([
+            'nis' => $this->nis,
+            'nisn' => $this->nisn,
+            'name' => $this->name,
+            'whatsapp' => $this->whatsapp,
+            'email' => $this->email,
+            'grade' => $this->grade,
+            'class_name' => $this->class_name,
+            'address' => $this->address,
+            'birth_place' => $this->birth_place,
+            'birth_date' => $this->birth_date,
+            'major' => $this->major,
+        ]);
+
+        $this->dispatch('alert', [
+            'type' => 'success',
+            'title' => 'Berhasil!',
+            'text' => 'Data Siswa Berhasil Diperbarui.',
+        ]);
+
+        $this->closeModal();
+    }
+
+    public function delete($id)
+    {
+        $student = Student::where('project_id', $this->project->id)->findOrFail($id);
+
+        // Check for photos
+        if ($student->photos()->count() > 0) {
+            // Delete photos first? Or warn?
+            // Assuming cascade deletion or manual cleanup is okay for now
+            // But let's just delete the photos too
+            foreach ($student->photos as $photo) {
+                if (Storage::disk('public')->exists($photo->file_path)) {
+                    Storage::disk('public')->delete($photo->file_path);
+                }
+                $photo->delete();
+            }
+        }
+
+        // Check main photo
+        if ($student->photo && Storage::disk('public')->exists($student->photo)) {
+            Storage::disk('public')->delete($student->photo);
+        }
+
+        $student->delete();
+
+        $this->dispatch('alert', [
+            'type' => 'success',
+            'title' => 'Terhapus!',
+            'text' => 'Data Siswa Berhasil Dihapus.',
+        ]);
+    }
+
+    public function closeModal()
+    {
+        $this->showModal = false;
+        $this->resetForm();
+    }
+
+    public function resetForm()
+    {
+        $this->reset(['nis', 'nisn', 'name', 'whatsapp', 'email', 'grade', 'class_name', 'address', 'birth_place', 'birth_date', 'studentId']);
+        if (!$this->isSmp) {
+            $this->reset('major');
+        } else {
+            $this->major = 'UMUM';
         }
     }
 

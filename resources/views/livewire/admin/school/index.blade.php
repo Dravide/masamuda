@@ -26,10 +26,12 @@
                 @endif
 
                 <div class="card">
-                    <div class="card-header d-flex flex-wrap gap-3 align-items-center justify-content-between border-0 pb-0">
+                    <div
+                        class="card-header d-flex flex-wrap gap-3 align-items-center justify-content-between border-0 pb-0">
                         <div class="d-flex gap-2 align-items-center flex-wrap">
                             <div class="search-box">
-                                <input type="text" class="form-control" placeholder="Cari Sekolah, NPSN, Kota..." wire:model.live.debounce.300ms="search">
+                                <input type="text" class="form-control" placeholder="Cari Sekolah, NPSN, Kota..."
+                                    wire:model.live.debounce.300ms="search">
                             </div>
                             <select class="form-select w-auto" wire:model.live="statusFilter">
                                 <option value="all">Semua Status</option>
@@ -67,13 +69,15 @@
                                         <tr>
                                             <td>
                                                 <div class="avatar avatar-md rounded">
-                                                    <img src="{{ $school->logo ? asset('storage/' . $school->logo) : asset('template/assets/images/logo.svg') }}" alt="Logo" class="object-fit-contain">
+                                                    <img src="{{ $school->logo ? asset('storage/' . $school->logo) : asset('template/assets/images/logo.svg') }}"
+                                                        alt="Logo" class="object-fit-contain">
                                                 </div>
                                             </td>
                                             <td>{{ $school->npsn }}</td>
                                             <td>
                                                 <div class="fw-bold text-dark">{{ $school->name }}</div>
-                                                <small class="text-muted d-block">{{ Str::limit($school->address, 30) }}</small>
+                                                <small
+                                                    class="text-muted d-block">{{ Str::limit($school->address, 30) }}</small>
                                             </td>
                                             <td>
                                                 @if($school->status == 'negeri')
@@ -93,7 +97,9 @@
                                                     </span>
                                                     <div class="small text-muted mt-1">{{ $school->user->username }}</div>
                                                 @else
-                                                    <button type="button" onclick="confirmGenerate({{ $school->id }}, '{{ $school->name }}')" class="btn btn-xs btn-outline-primary">
+                                                    <button type="button"
+                                                        onclick="confirmGenerate({{ $school->id }}, '{{ $school->name }}')"
+                                                        class="btn btn-xs btn-outline-primary">
                                                         <i class="fi fi-rr-key me-1"></i> Generate
                                                     </button>
                                                 @endif
@@ -106,10 +112,17 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                <button wire:click="edit({{ $school->id }})" class="btn btn-sm btn-icon btn-action-primary">
+                                                <a href="{{ route('admin.sekolah.guru', $school->id) }}"
+                                                    class="btn btn-sm btn-icon btn-action-info" title="Kelola Guru">
+                                                    <i class="fi fi-rr-users-alt"></i>
+                                                </a>
+                                                <button wire:click="edit({{ $school->id }})"
+                                                    class="btn btn-sm btn-icon btn-action-primary">
                                                     <i class="fi fi-rr-edit"></i>
                                                 </button>
-                                                <button wire:click="delete({{ $school->id }})" class="btn btn-sm btn-icon btn-action-danger" onclick="confirm('Hapus data sekolah ini?') || event.stopImmediatePropagation()">
+                                                <button wire:click="delete({{ $school->id }})"
+                                                    class="btn btn-sm btn-icon btn-action-danger"
+                                                    onclick="confirm('Hapus data sekolah ini?') || event.stopImmediatePropagation()">
                                                     <i class="fi fi-rr-trash"></i>
                                                 </button>
                                             </td>
@@ -127,7 +140,8 @@
                         <div class="mt-3">
                             <div class="d-flex justify-content-between align-items-center flex-wrap">
                                 <small class="text-muted mb-2 mb-md-0">
-                                    Menampilkan {{ $schools->firstItem() ?? 0 }} sampai {{ $schools->lastItem() ?? 0 }} dari {{ $schools->total() }} data
+                                    Menampilkan {{ $schools->firstItem() ?? 0 }} sampai {{ $schools->lastItem() ?? 0 }}
+                                    dari {{ $schools->total() }} data
                                 </small>
                                 {{ $schools->links() }}
                             </div>
@@ -140,144 +154,161 @@
 
     <!-- Modal Form -->
     @if($showModal)
-    <div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5); overflow-y: auto;" tabindex="-1" role="dialog" aria-modal="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">{{ $isEdit ? 'Edit Data Sekolah' : 'Tambah Sekolah Baru' }}</h5>
-                    <button wire:click="closeModal" type="button" class="btn-close" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form wire:submit.prevent="{{ $isEdit ? 'update' : 'store' }}">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">NPSN <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control @error('npsn') is-invalid @enderror" wire:model="npsn" maxlength="8">
-                                @error('npsn') <div class="invalid-feedback">{{ $message }}</div> @enderror
+        <div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5); overflow-y: auto;"
+            tabindex="-1" role="dialog" aria-modal="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">{{ $isEdit ? 'Edit Data Sekolah' : 'Tambah Sekolah Baru' }}</h5>
+                        <button wire:click="closeModal" type="button" class="btn-close" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form wire:submit.prevent="{{ $isEdit ? 'update' : 'store' }}">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">NPSN <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('npsn') is-invalid @enderror"
+                                        wire:model="npsn" maxlength="8">
+                                    @error('npsn') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Nama Sekolah <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                        wire:model="name">
+                                    @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Nama Sekolah <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control @error('name') is-invalid @enderror" wire:model="name">
-                                @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
-                        </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Status Sekolah <span class="text-danger">*</span></label>
-                                <select class="form-select @error('status') is-invalid @enderror" wire:model="status">
-                                    <option value="negeri">Negeri</option>
-                                    <option value="swasta">Swasta</option>
-                                </select>
-                                @error('status') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Status Sekolah <span class="text-danger">*</span></label>
+                                    <select class="form-select @error('status') is-invalid @enderror" wire:model="status">
+                                        <option value="negeri">Negeri</option>
+                                        <option value="swasta">Swasta</option>
+                                    </select>
+                                    @error('status') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Logo Sekolah</label>
+                                    <input type="file" class="form-control @error('logo') is-invalid @enderror"
+                                        wire:model="{{ $isEdit ? 'newLogo' : 'logo' }}">
+                                    <div wire:loading wire:target="logo, newLogo" class="text-sm text-muted mt-1">
+                                        Uploading...</div>
+                                    @if ($logo && !$newLogo && $isEdit)
+                                        <div class="mt-2">
+                                            <img src="{{ asset('storage/' . $logo) }}" width="50" class="rounded">
+                                        </div>
+                                    @elseif ($logo && !$isEdit)
+                                        <div class="mt-2">
+                                            <img src="{{ $logo->temporaryUrl() }}" width="50" class="rounded">
+                                        </div>
+                                    @elseif ($newLogo)
+                                        <div class="mt-2">
+                                            <img src="{{ $newLogo->temporaryUrl() }}" width="50" class="rounded">
+                                        </div>
+                                    @endif
+                                    @error('logo') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    @error('newLogo') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Logo Sekolah</label>
-                                <input type="file" class="form-control @error('logo') is-invalid @enderror" wire:model="{{ $isEdit ? 'newLogo' : 'logo' }}">
-                                <div wire:loading wire:target="logo, newLogo" class="text-sm text-muted mt-1">Uploading...</div>
-                                @if ($logo && !$newLogo && $isEdit)
-                                    <div class="mt-2">
-                                        <img src="{{ asset('storage/'.$logo) }}" width="50" class="rounded">
-                                    </div>
-                                @elseif ($logo && !$isEdit)
-                                     <div class="mt-2">
-                                        <img src="{{ $logo->temporaryUrl() }}" width="50" class="rounded">
-                                    </div>
-                                @elseif ($newLogo)
-                                    <div class="mt-2">
-                                        <img src="{{ $newLogo->temporaryUrl() }}" width="50" class="rounded">
-                                    </div>
-                                @endif
-                                @error('logo') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                @error('newLogo') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
-                        </div>
 
-                        <h6 class="mt-3 mb-3 border-bottom pb-2">Alamat & Kontak</h6>
+                            <h6 class="mt-3 mb-3 border-bottom pb-2">Alamat & Kontak</h6>
 
-                        <div class="mb-3">
-                            <label class="form-label">Alamat Lengkap (Jalan/Desa) <span class="text-danger">*</span></label>
-                            <textarea class="form-control @error('address') is-invalid @enderror" wire:model="address" rows="2"></textarea>
-                            @error('address') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                        </div>
+                            <div class="mb-3">
+                                <label class="form-label">Alamat Lengkap (Jalan/Desa) <span
+                                        class="text-danger">*</span></label>
+                                <textarea class="form-control @error('address') is-invalid @enderror" wire:model="address"
+                                    rows="2"></textarea>
+                                @error('address') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Kecamatan <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control @error('district') is-invalid @enderror" wire:model="district">
-                                @error('district') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Kecamatan <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('district') is-invalid @enderror"
+                                        wire:model="district">
+                                    @error('district') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Kabupaten/Kota <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('city') is-invalid @enderror"
+                                        wire:model="city">
+                                    @error('city') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Kabupaten/Kota <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control @error('city') is-invalid @enderror" wire:model="city">
-                                @error('city') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
-                        </div>
 
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Provinsi <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control @error('province') is-invalid @enderror" wire:model="province">
-                                @error('province') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Provinsi <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('province') is-invalid @enderror"
+                                        wire:model="province">
+                                    @error('province') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Kode Pos <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('postal_code') is-invalid @enderror"
+                                        wire:model="postal_code" maxlength="5">
+                                    @error('postal_code') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">RT/RW</label>
+                                    <input type="text" class="form-control @error('rt_rw') is-invalid @enderror"
+                                        wire:model="rt_rw" placeholder="00/00">
+                                    @error('rt_rw') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
                             </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Kode Pos <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control @error('postal_code') is-invalid @enderror" wire:model="postal_code" maxlength="5">
-                                @error('postal_code') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">RT/RW</label>
-                                <input type="text" class="form-control @error('rt_rw') is-invalid @enderror" wire:model="rt_rw" placeholder="00/00">
-                                @error('rt_rw') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
-                        </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Email</label>
-                                <input type="email" class="form-control @error('email') is-invalid @enderror" wire:model="email">
-                                @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control @error('email') is-invalid @enderror"
+                                        wire:model="email">
+                                    @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Telepon</label>
+                                    <input type="text" class="form-control @error('phone') is-invalid @enderror"
+                                        wire:model="phone">
+                                    @error('phone') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Telepon</label>
-                                <input type="text" class="form-control @error('phone') is-invalid @enderror" wire:model="phone">
-                                @error('phone') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
-                        </div>
 
-                        <h6 class="mt-3 mb-3 border-bottom pb-2">Lokasi & Koordinat</h6>
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Latitude</label>
-                                <input type="text" class="form-control @error('latitude') is-invalid @enderror" wire:model="latitude" placeholder="-6.175392">
-                                @error('latitude') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Longitude</label>
-                                <input type="text" class="form-control @error('longitude') is-invalid @enderror" wire:model="longitude" placeholder="106.827153">
-                                @error('longitude') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
-                        </div>
+                            <h6 class="mt-3 mb-3 border-bottom pb-2">Lokasi & Koordinat</h6>
 
-                        <div class="text-end mt-4">
-                            <button wire:click="closeModal" type="button" class="btn btn-light waves-effect">Batal</button>
-                            <button type="submit" class="btn btn-primary waves-effect waves-light">
-                                <span wire:loading.remove>{{ $isEdit ? 'Update' : 'Simpan' }}</span>
-                                <span wire:loading>Loading...</span>
-                            </button>
-                        </div>
-                    </form>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Latitude</label>
+                                    <input type="text" class="form-control @error('latitude') is-invalid @enderror"
+                                        wire:model="latitude" placeholder="-6.175392">
+                                    @error('latitude') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Longitude</label>
+                                    <input type="text" class="form-control @error('longitude') is-invalid @enderror"
+                                        wire:model="longitude" placeholder="106.827153">
+                                    @error('longitude') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+
+                            <div class="text-end mt-4">
+                                <button wire:click="closeModal" type="button"
+                                    class="btn btn-light waves-effect">Batal</button>
+                                <button type="submit" class="btn btn-primary waves-effect waves-light">
+                                    <span wire:loading.remove>{{ $isEdit ? 'Update' : 'Simpan' }}</span>
+                                    <span wire:loading>Loading...</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     @endif
 
     <script>
         document.addEventListener('livewire:initialized', () => {
             Livewire.on('alert', (data) => {
-                const alertData = data[0]; 
+                const alertData = data[0];
                 Swal.fire({
                     icon: alertData.type,
                     title: alertData.title,

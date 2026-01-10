@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Sekolah\Project;
+namespace App\Livewire\Admin\Student;
 
 use App\Imports\StudentsImport;
 use App\Models\Project;
@@ -13,7 +13,7 @@ use Livewire\WithFileUploads;
 use Maatwebsite\Excel\Facades\Excel;
 use Carbon\Carbon;
 
-class StudentImport extends Component
+class Import extends Component
 {
     use WithFileUploads;
 
@@ -27,14 +27,8 @@ class StudentImport extends Component
 
     public function mount(Project $project)
     {
-        $this->school = School::where('user_id', Auth::id())->firstOrFail();
-
-        // Verify project belongs to this school
-        if ($project->school_id !== $this->school->id) {
-            abort(403);
-        }
-
         $this->project = $project;
+        $this->school = $project->school;
     }
 
     public function downloadTemplate()
@@ -42,7 +36,7 @@ class StudentImport extends Component
         return response()->streamDownload(function () {
             echo "NIS,NISN,Nama Lengkap,Jurusan,Tingkat,Kelas\n";
             echo "12345,0012345678,Contoh Siswa,IPA,10,IPA 1\n";
-        }, 'template-import-siswa.csv');
+        }, 'template-import-siswa-admin.csv');
     }
 
     public function updatedFile()
@@ -93,7 +87,7 @@ class StudentImport extends Component
 
                 if (empty($row['tingkat'])) {
                     $isValid = false;
-                    $errors[] = 'TIngkat wajib diisi';
+                    $errors[] = 'Tingkat wajib diisi';
                 }
 
                 if (empty($row['kelas'])) {
@@ -106,7 +100,7 @@ class StudentImport extends Component
                     $errors[] = 'Jurusan wajib diisi';
                 }
 
-                // Date Validation (Optional now)
+                // Date Validation (Optional)
                 $birthDate = null;
                 if (!empty($row['tanggal_lahir'])) {
                     try {
@@ -117,11 +111,9 @@ class StudentImport extends Component
                             $birthDate = Carbon::parse($row['tanggal_lahir'])->format('Y-m-d');
                         }
                     } catch (\Exception $e) {
-                        // If date is invalid but present, we mark as invalid? Or just ignore?
-                        // "hanya data yang wajib saja" implies others are optional.
-                        // But if provided, it should likely be valid.
-                        $isValid = false;
-                        $errors[] = 'Format tanggal lahir salah';
+                        // Optional
+                        // $isValid = false;
+                        // $errors[] = 'Format tanggal lahir salah';
                     }
                 }
 
@@ -191,7 +183,7 @@ class StudentImport extends Component
             }
 
             $count = count($this->validData);
-            Log::info("User ID " . Auth::id() . " imported {$count} students to project " . $this->project->id);
+            Log::info("Admin ID " . Auth::id() . " imported {$count} students to project " . $this->project->id);
 
             $this->dispatch('alert', [
                 'type' => 'success',
@@ -201,13 +193,13 @@ class StudentImport extends Component
 
             $this->reset('file', 'previewData', 'validData', 'invalidData', 'isUploaded');
 
-            return redirect()->route('sekolah.project.siswa', $this->project);
+            return redirect()->route('admin.project.show', $this->project);
 
         } catch (\Exception $e) {
             $this->dispatch('alert', [
                 'type' => 'error',
                 'title' => 'Gagal!',
-                'text' => 'Terjadi kesalahan saat menyimpan data.',
+                'text' => 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage(),
             ]);
             Log::error('Import Save Error: ' . $e->getMessage());
         }
@@ -216,12 +208,12 @@ class StudentImport extends Component
     public function cancel()
     {
         $this->reset('file', 'previewData', 'validData', 'invalidData', 'isUploaded');
-        return redirect()->route('sekolah.project.siswa', $this->project);
+        return redirect()->route('admin.project.show', $this->project);
     }
 
     public function render()
     {
-        return view('livewire.sekolah.project.student-import')
+        return view('livewire.admin.student.import')
             ->layout('layouts.dashboard')
             ->title('Import Siswa - ' . $this->project->name);
     }

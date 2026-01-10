@@ -237,8 +237,8 @@ class StudentList extends Component
             'email' => 'nullable|email|max:255',
             'grade' => 'required|string|max:10',
             'class_name' => 'required|string|max:50',
-            'address' => 'required|string',
-            'birth_date' => 'required|date',
+            'address' => 'nullable|string',
+            'birth_date' => 'nullable|date',
             'major' => 'required|string',
         ]);
 
@@ -285,8 +285,8 @@ class StudentList extends Component
             'email' => 'nullable|email|max:255',
             'grade' => 'required|string|max:10',
             'class_name' => 'required|string|max:50',
-            'address' => 'required|string',
-            'birth_date' => 'required|date',
+            'address' => 'nullable|string',
+            'birth_date' => 'nullable|date',
             'major' => 'required|string',
         ]);
 

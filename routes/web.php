@@ -68,9 +68,11 @@ Route::middleware(['auth', 'force.password.change'])->group(function () {
         Route::get('/tahun-pelajaran', AcademicYearIndex::class)->name('tahun-pelajaran.index');
         Route::get('/pengguna', UserIndex::class)->name('pengguna.index');
         Route::get('/sekolah', SchoolIndex::class)->name('sekolah.index');
+        Route::get('/sekolah/{school}/guru', \App\Livewire\Admin\School\Teacher::class)->name('sekolah.guru');
         Route::get('/jurusan', MajorIndex::class)->name('jurusan.index');
         Route::get('/project', AdminStudentProjectList::class)->name('project.index');
         Route::get('/project/{project}', AdminStudentByProject::class)->name('project.show');
+        Route::get('/project/{project}/siswa/import', \App\Livewire\Admin\Student\Import::class)->name('project.siswa.import');
         Route::get('/settings', AdminSettings::class)->name('settings');
     });
 
