@@ -28,7 +28,7 @@ class Index extends Component
         'year_name' => 'required|regex:/^\d{4}\/\d{4}$/',
         'start_date' => 'required|date',
         'end_date' => 'required|date|after:start_date',
-        'semester' => 'required|in:ganjil,genap',
+        'semester' => 'required|in:ganjil,genap,full',
         'is_active' => 'boolean',
     ];
 
