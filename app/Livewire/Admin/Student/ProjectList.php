@@ -184,7 +184,17 @@ class ProjectList extends Component
         $this->closeModal();
     }
 
-    public function delete($id)
+    public function confirmDelete($id)
+    {
+        $project = Project::findOrFail($id);
+        $this->dispatch('swal:confirm-delete', [
+            'id' => $id,
+            'title' => 'Hapus Project?',
+            'text' => 'Data project ' . $project->name . ' dan data siswa di dalamnya akan dihapus permanen.',
+        ]);
+    }
+
+    public function destroy($id)
     {
         $project = Project::findOrFail($id);
         $project->delete();

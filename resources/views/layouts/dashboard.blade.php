@@ -139,6 +139,7 @@
   <script src="{{ asset('template/assets/js/main.js') }}"></script>
 
   @livewireScripts
+  @stack('scripts')
 </body>
 
 </html>

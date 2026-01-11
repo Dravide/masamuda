@@ -64,9 +64,8 @@
                                                     class="btn btn-sm btn-icon btn-action-primary">
                                                     <i class="fi fi-rr-edit"></i>
                                                 </button>
-                                                <button wire:click="delete({{ $year->id }})"
-                                                    class="btn btn-sm btn-icon btn-action-danger"
-                                                    onclick="confirm('Apakah Anda yakin ingin menghapus data ini?') || event.stopImmediatePropagation()">
+                                                <button wire:click="confirmDelete({{ $year->id }})"
+                                                    class="btn btn-sm btn-icon btn-action-danger">
                                                     <i class="fi fi-rr-trash"></i>
                                                 </button>
                                             </td>
@@ -163,3 +162,44 @@
         </div>
     @endif
 </div>
+
+@push('scripts')
+    <script>
+        document.addEventListener('livewire:initialized', () => {
+            Livewire.on('swal:confirm-delete', (event) => {
+                Swal.fire({
+                    title: event[0].title,
+                    text: event[0].text,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Ya, Hapus!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        @this.call('destroy', event[0].id);
+                    }
+                });
+            });
+
+            Livewire.on('swal:error', (event) => {
+                Swal.fire({
+                    title: event[0].title,
+                    text: event[0].text,
+                    icon: 'error',
+                });
+            });
+
+            Livewire.on('swal:success', (event) => {
+                Swal.fire({
+                    title: event[0].title,
+                    text: event[0].text,
+                    icon: 'success',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            });
+        });
+    </script>
+@endpush

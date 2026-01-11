@@ -231,7 +231,17 @@ class Index extends Component
         $this->resetInputFields();
     }
 
-    public function delete($id)
+    public function confirmDelete($id)
+    {
+        $school = School::findOrFail($id);
+        $this->dispatch('swal:confirm-delete', [
+            'id' => $id,
+            'title' => 'Hapus Sekolah?',
+            'text' => 'Data sekolah ' . $school->name . ' beserta user dan logo akan dihapus permanen.',
+        ]);
+    }
+
+    public function destroy($id)
     {
         $school = School::findOrFail($id);
         if ($school->logo) {

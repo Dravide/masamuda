@@ -140,20 +140,40 @@ class Index extends Component
         $this->resetInputFields();
     }
 
-    public function delete($id)
+    public function confirmDelete($id)
     {
         $academicYear = AcademicYear::findOrFail($id);
 
         if ($academicYear->is_active) {
-            session()->flash('error', 'Tidak dapat menghapus tahun pelajaran yang sedang aktif.');
+            $this->dispatch('swal:error', [
+                'title' => 'Gagal!',
+                'text' => 'Tidak dapat menghapus tahun pelajaran yang sedang aktif.',
+            ]);
             return;
         }
 
-        $this->deleteId = $id;
-        // Logic to show delete confirmation modal can be handled in frontend
+        $this->dispatch('swal:confirm-delete', [
+            'id' => $id,
+            'title' => 'Apakah Anda yakin?',
+            'text' => 'Data tahun pelajaran ' . $academicYear->year_name . ' (' . $academicYear->semester . ') akan dihapus.',
+        ]);
+    }
+
+    public function destroy($id)
+    {
+        $academicYear = AcademicYear::findOrFail($id);
+
+        if ($academicYear->is_active) {
+            return;
+        }
+
         $academicYear->delete();
         $this->logAudit('delete', 'Deleted Academic Year: ' . $academicYear->year_name);
-        session()->flash('message', 'Tahun Pelajaran Berhasil Dihapus.');
+
+        $this->dispatch('swal:success', [
+            'title' => 'Berhasil!',
+            'text' => 'Tahun Pelajaran Berhasil Dihapus.',
+        ]);
     }
 
     public function closeModal()

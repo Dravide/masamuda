@@ -171,20 +171,42 @@ class Index extends Component
         $this->resetInputFields();
     }
 
-    public function delete($id)
+    public function confirmDelete($id)
     {
         $user = User::findOrFail($id);
 
         if ($user->id === Auth::id()) {
-            session()->flash('error', 'Tidak dapat menghapus akun sendiri.');
+            $this->dispatch('alert', [
+                'type' => 'error',
+                'title' => 'Gagal!',
+                'text' => 'Tidak dapat menghapus akun sendiri.',
+            ]);
             return;
         }
 
-        $this->deleteId = $id;
-        // Logic to show delete confirmation modal can be handled in frontend
+        $this->dispatch('swal:confirm-delete', [
+            'id' => $id,
+            'title' => 'Hapus User?',
+            'text' => 'Data user ' . $user->name . ' akan dihapus permanen.',
+        ]);
+    }
+
+    public function destroy($id)
+    {
+        $user = User::findOrFail($id);
+
+        if ($user->id === Auth::id()) {
+            return;
+        }
+
         $user->delete();
         $this->logAudit('delete', 'Deleted User: ' . $user->username);
-        session()->flash('message', 'User Berhasil Dihapus.');
+
+        $this->dispatch('alert', [
+            'type' => 'success',
+            'title' => 'Terhapus!',
+            'text' => 'User Berhasil Dihapus.',
+        ]);
     }
 
     public function toggleStatus($id)
