@@ -74,6 +74,7 @@ Route::middleware(['auth', 'force.password.change'])->group(function () {
         Route::get('/project/{project}', AdminStudentByProject::class)->name('project.show');
         Route::get('/project/{project}/siswa/import', \App\Livewire\Admin\Student\Import::class)->name('project.siswa.import');
         Route::get('/settings', AdminSettings::class)->name('settings');
+        Route::get('/broadcast', \App\Livewire\Admin\Broadcast\Index::class)->name('broadcast.index');
     });
 
     Route::middleware(['role:sekolah'])->prefix('sekolah')->name('sekolah.')->group(function () {

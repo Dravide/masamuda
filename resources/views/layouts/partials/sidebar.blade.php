@@ -65,6 +65,16 @@
                 </li>
 
                 <li class="menu-heading">
+                    <span class="menu-label">Komunikasi</span>
+                </li>
+                <li class="menu-item {{ request()->routeIs('admin.broadcast.*') ? 'active' : '' }}">
+                    <a class="menu-link" href="{{ route('admin.broadcast.index') }}">
+                        <i class="fi fi-rr-envelope"></i>
+                        <span class="menu-label">Broadcast</span>
+                    </a>
+                </li>
+
+                <li class="menu-heading">
                     <span class="menu-label">Sistem</span>
                 </li>
                 <li class="menu-item {{ request()->routeIs('admin.pengguna.index') ? 'active' : '' }}">
