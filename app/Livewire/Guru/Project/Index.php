@@ -18,10 +18,11 @@ class Index extends Component
 
     public function mount()
     {
-        $activeYear = AcademicYear::where('is_active', true)->first();
-        if ($activeYear) {
-            $this->academic_year_id = $activeYear->id;
-        }
+        // Default: Show all projects (User request)
+        // $activeYear = AcademicYear::where('is_active', true)->first();
+        // if ($activeYear) {
+        //     $this->academic_year_id = $activeYear->id;
+        // }
     }
 
     public function render()
