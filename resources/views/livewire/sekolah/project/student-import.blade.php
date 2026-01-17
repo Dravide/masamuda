@@ -13,14 +13,14 @@
                             <a href="{{ route('sekolah.project.index') }}">Project</a>
                         </li>
                         <li class="breadcrumb-item">
-                            <a href="{{ route('sekolah.project.siswa', $project) }}">{{ $project->name }}</a>
+                            <a href="{{ route('sekolah.project.data', $project) }}">{{ $project->name }}</a>
                         </li>
                         <li class="breadcrumb-item active" aria-current="page">Import</li>
                     </ol>
                 </nav>
             </div>
             <div class="d-flex gap-2">
-                <a href="{{ route('sekolah.project.siswa', $project) }}" class="btn btn-outline-secondary waves-effect">
+                <a href="{{ route('sekolah.project.data', $project) }}" class="btn btn-outline-secondary waves-effect">
                     <i class="fi fi-rr-arrow-left me-1"></i> Kembali
                 </a>
                 <button wire:click="downloadTemplate" class="btn btn-primary waves-effect waves-light">

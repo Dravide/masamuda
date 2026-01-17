@@ -97,8 +97,8 @@
                     <span class="menu-label">Data</span>
                 </li>
                 <li
-                    class="menu-item {{ request()->routeIs('sekolah.project.index', 'sekolah.project.siswa', 'sekolah.project.siswa.import') ? 'active' : '' }}">
-                    <a class="menu-link {{ request()->routeIs('sekolah.project.index', 'sekolah.project.siswa', 'sekolah.project.siswa.import') ? 'active' : '' }}"
+                    class="menu-item {{ request()->routeIs('sekolah.project.index', 'sekolah.project.data', 'sekolah.project.data.import') ? 'active' : '' }}">
+                    <a class="menu-link {{ request()->routeIs('sekolah.project.index', 'sekolah.project.data', 'sekolah.project.data.import') ? 'active' : '' }}"
                         href="{{ route('sekolah.project.index') }}">
                         <i class="fi fi-rr-folder"></i>
                         <span class="menu-label">Project</span>

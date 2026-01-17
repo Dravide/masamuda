@@ -201,7 +201,7 @@ class StudentImport extends Component
 
             $this->reset('file', 'previewData', 'validData', 'invalidData', 'isUploaded');
 
-            return redirect()->route('sekolah.project.siswa', $this->project);
+            return redirect()->route('sekolah.project.data', $this->project);
 
         } catch (\Exception $e) {
             $this->dispatch('alert', [

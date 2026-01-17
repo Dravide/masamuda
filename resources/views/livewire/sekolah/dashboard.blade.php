@@ -199,7 +199,7 @@
                                         </td>
                                         <td class="text-end">
                                             @if($project->status === 'active')
-                                                <a href="{{ route('sekolah.project.siswa', $project->id) }}"
+                                                <a href="{{ route('sekolah.project.data', $project->id) }}"
                                                     class="btn btn-sm btn-success waves-effect">
                                                     <i class="fi fi-rr-users me-1"></i> Input Data
                                                 </a>
