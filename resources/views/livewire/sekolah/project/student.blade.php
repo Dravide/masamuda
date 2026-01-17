@@ -30,6 +30,10 @@
                             class="btn btn-outline-primary waves-effect">
                             <i class="fi fi-rr-file-import me-1"></i> Import Siswa
                         </a>
+                    @else
+                        <button wire:click="openMigrateModal" class="btn btn-outline-warning waves-effect">
+                            <i class="fi fi-rr-download me-1"></i> Import dari Data Guru
+                        </button>
                     @endif
                     <button wire:click="create" class="btn btn-primary waves-effect waves-light">
                         <i class="fi fi-rr-plus me-1"></i> Tambah {{ $isGuru ? 'Guru' : 'Siswa' }}
@@ -501,6 +505,79 @@
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- Teacher Migration Modal -->
+    @if($showMigrateModal)
+        <div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5); overflow-y: auto;"
+            tabindex="-1" role="dialog" aria-modal="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"><i class="fi fi-rr-download me-2"></i> Import dari Data Guru</h5>
+                        <button wire:click="closeMigrateModal" type="button" class="btn-close" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        @if($teacherCount > 0)
+                            <div class="alert alert-info mb-3">
+                                <i class="fi fi-rr-info me-1"></i>
+                                Ditemukan <strong>{{ $teacherCount }}</strong> guru dari halaman Data Guru yang belum ada di
+                                project ini.
+                            </div>
+
+                            <div class="table-responsive border rounded" style="max-height: 350px;">
+                                <table class="table table-sm table-hover mb-0">
+                                    <thead class="table-light sticky-top">
+                                        <tr>
+                                            <th>NIP</th>
+                                            <th>Nama</th>
+                                            <th>Email</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($teachersToMigrate as $teacher)
+                                            <tr>
+                                                <td><span class="fw-medium">{{ $teacher['nip'] }}</span></td>
+                                                <td>{{ $teacher['name'] }}</td>
+                                                <td>{{ $teacher['email'] ?? '-' }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="alert alert-warning mt-3 mb-0">
+                                <i class="fi fi-rr-exclamation me-1"></i>
+                                Data guru yang sudah ada di project (berdasarkan NIP) tidak akan di-import ulang.
+                            </div>
+                        @else
+                            <div class="text-center py-5">
+                                <div class="text-muted">
+                                    <i class="fi fi-rr-check-circle fs-1 d-block mb-2 text-success"></i>
+                                    <h6>Semua data guru sudah ada di project ini.</h6>
+                                    <p class="small mb-0">Tidak ada guru baru untuk di-import.</p>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                    <div class="modal-footer">
+                        <button wire:click="closeMigrateModal" type="button"
+                            class="btn btn-light waves-effect">Batal</button>
+                        @if($teacherCount > 0)
+                            <button wire:click="migrateFromTeachers" type="button"
+                                class="btn btn-warning waves-effect waves-light">
+                                <span wire:loading.remove wire:target="migrateFromTeachers">
+                                    <i class="fi fi-rr-download me-1"></i> Import {{ $teacherCount }} Guru
+                                </span>
+                                <span wire:loading wire:target="migrateFromTeachers">
+                                    <span class="spinner-border spinner-border-sm me-1"></span> Mengimport...
+                                </span>
+                            </button>
+                        @endif
                     </div>
                 </div>
             </div>

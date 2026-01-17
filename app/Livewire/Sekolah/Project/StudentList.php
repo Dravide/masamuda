@@ -6,6 +6,7 @@ use App\Models\Major;
 use App\Models\Project;
 use App\Models\School;
 use App\Models\Student;
+use App\Models\Teacher;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -53,6 +54,11 @@ class StudentList extends Component
     public $isSmp = false;
     public $isGuru = false;
     public $availableMajors = [];
+
+    // Teacher Migration Modal
+    public $showMigrateModal = false;
+    public $teacherCount = 0;
+    public $teachersToMigrate = [];
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -192,6 +198,96 @@ class StudentList extends Component
         ])->layout('layouts.dashboard')->title($targetLabel . ' - ' . $this->project->name);
     }
 
+    // ===== TEACHER MIGRATION METHODS =====
+
+    public function openMigrateModal()
+    {
+        if (!$this->isGuru) {
+            return;
+        }
+
+        // Get teachers from this school that are not yet in this project
+        $existingNips = Student::where('school_id', $this->school->id)
+            ->where('project_id', $this->project->id)
+            ->pluck('nis')
+            ->toArray();
+
+        $this->teachersToMigrate = Teacher::with('user')
+            ->where('school_id', $this->school->id)
+            ->whereNotIn('nip', $existingNips)
+            ->get()
+            ->map(function ($teacher) {
+                return [
+                    'id' => $teacher->id,
+                    'nip' => $teacher->nip,
+                    'name' => $teacher->user->name ?? 'N/A',
+                    'email' => $teacher->user->email ?? null,
+                ];
+            })
+            ->toArray();
+
+        $this->teacherCount = count($this->teachersToMigrate);
+        $this->showMigrateModal = true;
+    }
+
+    public function closeMigrateModal()
+    {
+        $this->showMigrateModal = false;
+        $this->teachersToMigrate = [];
+        $this->teacherCount = 0;
+    }
+
+    public function migrateFromTeachers()
+    {
+        if (!$this->isGuru || $this->isReadOnly) {
+            $this->dispatch('alert', [
+                'type' => 'error',
+                'title' => 'Error!',
+                'text' => 'Operasi tidak diizinkan.',
+            ]);
+            return;
+        }
+
+        $imported = 0;
+
+        foreach ($this->teachersToMigrate as $teacher) {
+            // Double check not exists
+            $exists = Student::where('school_id', $this->school->id)
+                ->where('project_id', $this->project->id)
+                ->where('nis', $teacher['nip'])
+                ->exists();
+
+            if (!$exists) {
+                Student::create([
+                    'school_id' => $this->school->id,
+                    'project_id' => $this->project->id,
+                    'nis' => $teacher['nip'],
+                    'nisn' => null,
+                    'name' => $teacher['name'],
+                    'email' => $teacher['email'],
+                    'whatsapp' => null,
+                    'grade' => null,
+                    'class_name' => null,
+                    'major' => null,
+                    'address' => null,
+                    'birth_place' => null,
+                    'birth_date' => null,
+                ]);
+                $imported++;
+            }
+        }
+
+        $this->closeMigrateModal();
+
+        $this->dispatch('alert', [
+            'type' => 'success',
+            'title' => 'Berhasil!',
+            'text' => "Berhasil mengimpor {$imported} data guru ke project ini.",
+        ]);
+    }
+
+    // ===== END TEACHER MIGRATION METHODS =====
+
     public function create()
     {
         $this->resetForm();
@@ -215,7 +311,7 @@ class StudentList extends Component
         $this->class_name = $student->class_name;
         $this->address = $student->address;
         $this->birth_place = $student->birth_place;
-        $this->birth_date = $student->birth_date->format('Y-m-d');
+        $this->birth_date = $student->birth_date ? $student->birth_date->format('Y-m-d') : null;
         $this->major = $student->major;
 
         $this->isEdit = true;
