@@ -9,9 +9,11 @@
                         <li class="breadcrumb-item active" aria-current="page">{{ $project->name }}</li>
                     </ol>
                 </nav>
-                <h1 class="app-page-title">Data Siswa - {{ $project->name }}</h1>
+                <h1 class="app-page-title">Data {{ $isGuru ? 'Guru' : 'Siswa' }} - {{ $project->name }}</h1>
                 <span class="text-muted">
                     <span class="badge bg-info-subtle text-info">{{ $project->type }}</span>
+                    <span
+                        class="badge bg-{{ $isGuru ? 'warning' : 'primary' }}-subtle text-{{ $isGuru ? 'warning' : 'primary' }}">{{ $isGuru ? 'Guru' : 'Siswa' }}</span>
                     <span class="badge bg-secondary">{{ $project->academicYear->year_name ?? '-' }}</span>
                 </span>
             </div>
@@ -20,15 +22,17 @@
                     <i class="fi fi-rr-arrow-left me-1"></i> Kembali
                 </a>
                 @if($project->status !== 'completed')
-                    <button wire:click="openCopyModal" class="btn btn-outline-success waves-effect">
-                        <i class="fi fi-rr-copy me-1"></i> Salin dari Project Lain
-                    </button>
-                    <a href="{{ route('sekolah.project.siswa.import', $project) }}"
-                        class="btn btn-outline-primary waves-effect">
-                        <i class="fi fi-rr-file-import me-1"></i> Import Siswa
-                    </a>
+                    @if(!$isGuru)
+                        <button wire:click="openCopyModal" class="btn btn-outline-success waves-effect">
+                            <i class="fi fi-rr-copy me-1"></i> Salin dari Project Lain
+                        </button>
+                        <a href="{{ route('sekolah.project.data.import', $project) }}"
+                            class="btn btn-outline-primary waves-effect">
+                            <i class="fi fi-rr-file-import me-1"></i> Import Siswa
+                        </a>
+                    @endif
                     <button wire:click="create" class="btn btn-primary waves-effect waves-light">
-                        <i class="fi fi-rr-plus me-1"></i> Tambah Siswa
+                        <i class="fi fi-rr-plus me-1"></i> Tambah {{ $isGuru ? 'Guru' : 'Siswa' }}
                     </button>
                 @endif
             </div>
@@ -36,68 +40,71 @@
 
         <!-- Statistics Cards -->
         <div class="row g-3 mb-4">
-            <!-- Total Students -->
+            <!-- Total Students/Teachers -->
             <div class="col-md-3">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
-                            <div class="avatar avatar-lg bg-primary-subtle text-primary rounded-circle me-3">
-                                <i class="fi fi-rr-users fs-4"></i>
+                            <div
+                                class="avatar avatar-lg bg-{{ $isGuru ? 'warning' : 'primary' }}-subtle text-{{ $isGuru ? 'warning' : 'primary' }} rounded-circle me-3">
+                                <i class="fi fi-rr-{{ $isGuru ? 'chalkboard-user' : 'users' }} fs-4"></i>
                             </div>
                             <div>
                                 <h3 class="mb-0 fw-bold">{{ $totalStudents }}</h3>
-                                <p class="text-muted mb-0 small">Total Siswa</p>
+                                <p class="text-muted mb-0 small">Total {{ $isGuru ? 'Guru' : 'Siswa' }}</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- By Grade -->
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-2">
-                            <div class="avatar avatar-lg bg-info-subtle text-info rounded-circle me-3">
-                                <i class="fi fi-rr-ranking-podium fs-4"></i>
+            <!-- By Grade - Only for Siswa -->
+            @if(!$isGuru)
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="avatar avatar-lg bg-info-subtle text-info rounded-circle me-3">
+                                    <i class="fi fi-rr-ranking-podium fs-4"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-0 fw-bold">Per Kelas</h5>
+                                </div>
                             </div>
-                            <div>
-                                <h5 class="mb-0 fw-bold">Per Kelas</h5>
+                            <div class="d-flex flex-wrap gap-1">
+                                @forelse($gradeStats as $grade => $count)
+                                    <span class="badge bg-info-subtle text-info">{{ $grade }}: {{ $count }}</span>
+                                @empty
+                                    <span class="text-muted small">Belum ada data</span>
+                                @endforelse
                             </div>
-                        </div>
-                        <div class="d-flex flex-wrap gap-1">
-                            @forelse($gradeStats as $grade => $count)
-                                <span class="badge bg-info-subtle text-info">{{ $grade }}: {{ $count }}</span>
-                            @empty
-                                <span class="text-muted small">Belum ada data</span>
-                            @endforelse
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- By Major -->
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-2">
-                            <div class="avatar avatar-lg bg-warning-subtle text-warning rounded-circle me-3">
-                                <i class="fi fi-rr-graduation-cap fs-4"></i>
+                <!-- By Major - Only for Siswa -->
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="avatar avatar-lg bg-warning-subtle text-warning rounded-circle me-3">
+                                    <i class="fi fi-rr-graduation-cap fs-4"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-0 fw-bold">Per Jurusan</h5>
+                                </div>
                             </div>
-                            <div>
-                                <h5 class="mb-0 fw-bold">Per Jurusan</h5>
+                            <div class="d-flex flex-wrap gap-1">
+                                @forelse($majorStats as $major => $count)
+                                    <span class="badge bg-warning-subtle text-warning">{{ $major }}: {{ $count }}</span>
+                                @empty
+                                    <span class="text-muted small">Belum ada data</span>
+                                @endforelse
                             </div>
-                        </div>
-                        <div class="d-flex flex-wrap gap-1">
-                            @forelse($majorStats as $major => $count)
-                                <span class="badge bg-warning-subtle text-warning">{{ $major }}: {{ $count }}</span>
-                            @empty
-                                <span class="text-muted small">Belum ada data</span>
-                            @endforelse
                         </div>
                     </div>
                 </div>
-            </div>
+            @endif
 
             <!-- Photo Status -->
             <div class="col-md-3">
@@ -139,7 +146,8 @@
                         class="card-header d-flex flex-wrap gap-3 align-items-center justify-content-between border-0 pb-0">
                         <div class="d-flex gap-2 align-items-center flex-wrap">
                             <div class="search-box">
-                                <input type="text" class="form-control" placeholder="Cari Siswa, NIS..."
+                                <input type="text" class="form-control"
+                                    placeholder="Cari {{ $isGuru ? 'Guru, NIP' : 'Siswa, NIS' }}..."
                                     wire:model.live.debounce.300ms="search">
                             </div>
                             <select class="form-select w-auto" wire:model.live="perPage">
@@ -149,22 +157,24 @@
                                 <option value="100">100</option>
                             </select>
 
-                            <!-- Grade Filter -->
-                            <select class="form-select w-auto" wire:model.live="filterGrade">
-                                <option value="">Semua Kelas</option>
-                                @foreach($availableGrades as $grade)
-                                    <option value="{{ $grade }}">Kelas {{ $grade }}</option>
-                                @endforeach
-                            </select>
-
-                            <!-- Major Filter -->
-                            @if(!$isSmp)
-                                <select class="form-select w-auto" wire:model.live="filterMajor">
-                                    <option value="">Semua Jurusan</option>
-                                    @foreach($availableMajorsFilter as $major)
-                                        <option value="{{ $major }}">{{ $major }}</option>
+                            @if(!$isGuru)
+                                <!-- Grade Filter - Only for Siswa -->
+                                <select class="form-select w-auto" wire:model.live="filterGrade">
+                                    <option value="">Semua Kelas</option>
+                                    @foreach($availableGrades as $grade)
+                                        <option value="{{ $grade }}">Kelas {{ $grade }}</option>
                                     @endforeach
                                 </select>
+
+                                <!-- Major Filter - Only for Siswa -->
+                                @if(!$isSmp)
+                                    <select class="form-select w-auto" wire:model.live="filterMajor">
+                                        <option value="">Semua Jurusan</option>
+                                        @foreach($availableMajorsFilter as $major)
+                                            <option value="{{ $major }}">{{ $major }}</option>
+                                        @endforeach
+                                    </select>
+                                @endif
                             @endif
 
                             <!-- Photo Filter -->
@@ -189,37 +199,47 @@
                                 <thead class="table-light">
                                     <tr>
                                         <th wire:click="sortBy('nis')" style="cursor: pointer;">
-                                            NIS
+                                            {{ $isGuru ? 'NIP' : 'NIS' }}
                                             @if($sortColumn == 'nis') <i
                                                 class="fi fi-rr-arrow-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
                                             @endif
                                         </th>
-                                        <th wire:click="sortBy('nisn')" style="cursor: pointer;">
-                                            NISN
-                                            @if($sortColumn == 'nisn') <i
-                                                class="fi fi-rr-arrow-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
-                                            @endif
-                                        </th>
+                                        @if(!$isGuru)
+                                            <th wire:click="sortBy('nisn')" style="cursor: pointer;">
+                                                NISN
+                                                @if($sortColumn == 'nisn') <i
+                                                    class="fi fi-rr-arrow-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                                @endif
+                                            </th>
+                                        @endif
                                         <th wire:click="sortBy('name')" style="cursor: pointer;">
                                             Nama Lengkap
                                             @if($sortColumn == 'name') <i
                                                 class="fi fi-rr-arrow-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
                                             @endif
                                         </th>
-                                        <th wire:click="sortBy('grade')" style="cursor: pointer;">
-                                            Kelas
-                                            @if($sortColumn == 'grade') <i
-                                                class="fi fi-rr-arrow-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
-                                            @endif
-                                        </th>
-                                        <th wire:click="sortBy('major')" style="cursor: pointer;">
-                                            Jurusan
-                                            @if($sortColumn == 'major') <i
-                                                class="fi fi-rr-arrow-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
-                                            @endif
-                                        </th>
-
-                                        <th>TTL</th>
+                                        @if(!$isGuru)
+                                            <th wire:click="sortBy('grade')" style="cursor: pointer;">
+                                                Kelas
+                                                @if($sortColumn == 'grade') <i
+                                                    class="fi fi-rr-arrow-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                                @endif
+                                            </th>
+                                            <th wire:click="sortBy('major')" style="cursor: pointer;">
+                                                Jurusan
+                                                @if($sortColumn == 'major') <i
+                                                    class="fi fi-rr-arrow-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                                @endif
+                                            </th>
+                                            <th>TTL</th>
+                                        @else
+                                            <th wire:click="sortBy('major')" style="cursor: pointer;">
+                                                Bidang/Mapel
+                                                @if($sortColumn == 'major') <i
+                                                    class="fi fi-rr-arrow-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                                @endif
+                                            </th>
+                                        @endif
                                         <th>WhatsApp</th>
                                         <th>Aksi</th>
                                     </tr>
@@ -228,23 +248,36 @@
                                     @forelse($students as $student)
                                         <tr>
                                             <td>{{ $student->nis }}</td>
-                                            <td>{{ $student->nisn }}</td>
+                                            @if(!$isGuru)
+                                                <td>{{ $student->nisn }}</td>
+                                            @endif
                                             <td class="fw-bold">{{ $student->name }}</td>
-                                            <td>
-                                                @if($student->grade)
-                                                    <span class="badge bg-secondary">{{ $student->grade }}
-                                                        {{ $student->class_name }}</span>
-                                                @else
-                                                    -
-                                                @endif
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-info-subtle text-info">{{ $student->major }}</span>
-                                            </td>
-                                            <td>
-                                                {{ $student->birth_place }},
-                                                {{ \Carbon\Carbon::parse($student->birth_date)->locale('id')->translatedFormat('d F Y') }}
-                                            </td>
+                                            @if(!$isGuru)
+                                                <td>
+                                                    @if($student->grade)
+                                                        <span class="badge bg-secondary">{{ $student->grade }}
+                                                            {{ $student->class_name }}</span>
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-info-subtle text-info">{{ $student->major }}</span>
+                                                </td>
+                                                <td>
+                                                    {{ $student->birth_place }},
+                                                    {{ \Carbon\Carbon::parse($student->birth_date)->locale('id')->translatedFormat('d F Y') }}
+                                                </td>
+                                            @else
+                                                <td>
+                                                    @if($student->major)
+                                                        <span
+                                                            class="badge bg-warning-subtle text-warning">{{ $student->major }}</span>
+                                                    @else
+                                                        <span class="text-muted">-</span>
+                                                    @endif
+                                                </td>
+                                            @endif
 
                                             <td>
                                                 @if($student->whatsapp)
@@ -276,8 +309,9 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="8" class="text-center py-4">
-                                                <div class="text-muted">Tidak ada data siswa ditemukan untuk project ini.
+                                            <td colspan="{{ $isGuru ? 5 : 8 }}" class="text-center py-4">
+                                                <div class="text-muted">Tidak ada data {{ $isGuru ? 'guru' : 'siswa' }}
+                                                    ditemukan untuk project ini.
                                                 </div>
                                             </td>
                                         </tr>
@@ -307,12 +341,55 @@
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">{{ $isEdit ? 'Edit Data Siswa' : 'Tambah Siswa Baru' }}</h5>
+                        <h5 class="modal-title">
+                            {{ $isEdit ? 'Edit Data ' . ($isGuru ? 'Guru' : 'Siswa') : 'Tambah ' . ($isGuru ? 'Guru' : 'Siswa') . ' Baru' }}
+                        </h5>
                         <button wire:click="closeModal" type="button" class="btn-close" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <form wire:submit.prevent="{{ $isEdit ? 'update' : 'store' }}">
-                                <!-- REQUIRED FIELDS -->
+                            @if($isGuru)
+                                <!-- GURU FORM -->
+                                <div class="mb-3">
+                                    <label class="form-label">NIP <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('nis') is-invalid @enderror" wire:model="nis"
+                                        placeholder="Nomor Induk Pegawai">
+                                    @error('nis') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                        wire:model="name" placeholder="Nama Lengkap Guru">
+                                    @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Bidang / Mata Pelajaran</label>
+                                    <input type="text" class="form-control @error('major') is-invalid @enderror"
+                                        wire:model="major" placeholder="Contoh: Matematika, Bahasa Indonesia">
+                                    @error('major') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+
+                                <hr class="my-4 text-muted">
+                                <h6 class="mb-3 text-muted">Informasi Kontak (Opsional)</h6>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Nomor WhatsApp</label>
+                                        <input type="text" class="form-control @error('whatsapp') is-invalid @enderror"
+                                            wire:model="whatsapp" placeholder="Contoh: 08123456789">
+                                        @error('whatsapp') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" class="form-control @error('email') is-invalid @enderror"
+                                            wire:model="email" placeholder="Contoh: guru@sekolah.com">
+                                        @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    </div>
+                                </div>
+                            @else
+                                <!-- SISWA FORM -->
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">NIS <span class="text-danger">*</span></label>
@@ -377,7 +454,6 @@
                                 <hr class="my-4 text-muted">
                                 <h6 class="mb-3 text-muted">Informasi Tambahan (Opsional)</h6>
 
-                                <!-- OPTIONAL FIELDS -->
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Tempat Lahir</label>
@@ -414,7 +490,7 @@
                                         rows="3" placeholder="Alamat Tempat Tinggal"></textarea>
                                     @error('address') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
-
+                            @endif
 
                             <div class="text-end mt-4">
                                 <button wire:click="closeModal" type="button"
@@ -434,7 +510,7 @@
     <script>
         function confirmDelete(id) {
             Swal.fire({
-                title: 'Hapus Data Siswa?',
+                title: 'Hapus Data {{ $isGuru ? "Guru" : "Siswa" }}?',
                 text: 'Data yang dihapus tidak dapat dikembalikan!',
                 icon: 'warning',
                 showCancelButton: true,

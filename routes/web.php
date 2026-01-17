@@ -80,8 +80,8 @@ Route::middleware(['auth', 'force.password.change'])->group(function () {
     Route::middleware(['role:sekolah'])->prefix('sekolah')->name('sekolah.')->group(function () {
         Route::get('/dashboard', SekolahDashboard::class)->name('dashboard');
         Route::get('/project', ProjectIndex::class)->name('project.index');
-        Route::get('/project/{project}/siswa', ProjectStudentList::class)->name('project.siswa');
-        Route::get('/project/{project}/siswa/import', ProjectStudentImport::class)->name('project.siswa.import');
+        Route::get('/project/{project}/data', ProjectStudentList::class)->name('project.data');
+        Route::get('/project/{project}/data/import', ProjectStudentImport::class)->name('project.data.import');
         Route::get('/foto', ProjectPhotoDownload::class)->name('foto.index');
         Route::get('/foto/{project}', ProjectPhotoDownload::class)->name('foto.show');
         Route::get('/guru', \App\Livewire\Sekolah\Teacher\Index::class)->name('guru.index');

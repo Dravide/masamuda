@@ -12,6 +12,7 @@ class Project extends Model
         'name',
         'academic_year_id',
         'type',
+        'target',
         'description',
         'date',
         'status',
@@ -24,6 +25,11 @@ class Project extends Model
     public const TYPES = [
         'Pas Photo',
         'Foto Kegiatan',
+    ];
+
+    public const TARGETS = [
+        'siswa' => 'Siswa',
+        'guru' => 'Guru',
     ];
 
     public const STATUSES = [

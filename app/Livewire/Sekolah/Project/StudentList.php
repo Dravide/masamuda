@@ -51,6 +51,7 @@ class StudentList extends Component
     // Helpers
     public $school;
     public $isSmp = false;
+    public $isGuru = false;
     public $availableMajors = [];
 
     protected $queryString = [
@@ -77,8 +78,9 @@ class StudentList extends Component
 
         $this->project = $project;
         $this->isSmp = $this->school->jenjang === 'smp';
+        $this->isGuru = $project->target === 'guru';
 
-        if (!$this->isSmp) {
+        if (!$this->isSmp && !$this->isGuru) {
             // Fetch active majors from database
             $this->availableMajors = Major::getActive()->pluck('name')->toArray();
         }
@@ -177,6 +179,7 @@ class StudentList extends Component
         $students = $query->orderBy($this->sortColumn, $this->sortDirection)
             ->paginate($this->perPage);
 
+        $targetLabel = $this->isGuru ? 'Guru' : 'Siswa';
         return view('livewire.sekolah.project.student', [
             'students' => $students,
             'totalStudents' => $totalStudents,
@@ -186,7 +189,7 @@ class StudentList extends Component
             'withoutPhotoCount' => $withoutPhotoCount,
             'availableGrades' => $availableGrades,
             'availableMajorsFilter' => $availableMajorsFilter,
-        ])->layout('layouts.dashboard')->title('Siswa - ' . $this->project->name);
+        ])->layout('layouts.dashboard')->title($targetLabel . ' - ' . $this->project->name);
     }
 
     public function create()
@@ -229,39 +232,51 @@ class StudentList extends Component
             ]);
             return;
         }
-        $this->validate([
-            'nis' => 'required|string|max:50',
-            'nisn' => 'required|string|max:50',
-            'name' => 'required|string|max:255',
-            'whatsapp' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:255',
-            'grade' => 'required|string|max:10',
-            'class_name' => 'required|string|max:50',
-            'address' => 'nullable|string',
-            'birth_date' => 'nullable|date',
-            'major' => 'required|string',
-        ]);
+        // Different validation rules for guru vs siswa
+        if ($this->isGuru) {
+            $this->validate([
+                'nis' => 'required|string|max:50', // Used as NIP for guru
+                'name' => 'required|string|max:255',
+                'whatsapp' => 'nullable|string|max:20',
+                'email' => 'nullable|email|max:255',
+                'major' => 'nullable|string', // Used as Bidang/Mata Pelajaran for guru
+            ]);
+        } else {
+            $this->validate([
+                'nis' => 'required|string|max:50',
+                'nisn' => 'required|string|max:50',
+                'name' => 'required|string|max:255',
+                'whatsapp' => 'nullable|string|max:20',
+                'email' => 'nullable|email|max:255',
+                'grade' => 'required|string|max:10',
+                'class_name' => 'required|string|max:50',
+                'address' => 'nullable|string',
+                'birth_date' => 'nullable|date',
+                'major' => 'required|string',
+            ]);
+        }
 
         Student::create([
             'school_id' => $this->school->id,
             'project_id' => $this->project->id,
             'nis' => $this->nis,
-            'nisn' => $this->nisn,
+            'nisn' => $this->isGuru ? null : $this->nisn,
             'name' => $this->name,
             'whatsapp' => $this->whatsapp,
             'email' => $this->email,
-            'grade' => $this->grade,
-            'class_name' => $this->class_name,
-            'address' => $this->address,
-            'birth_place' => $this->birth_place,
-            'birth_date' => $this->birth_date,
+            'grade' => $this->isGuru ? null : $this->grade,
+            'class_name' => $this->isGuru ? null : $this->class_name,
+            'address' => $this->isGuru ? null : $this->address,
+            'birth_place' => $this->isGuru ? null : $this->birth_place,
+            'birth_date' => $this->isGuru ? null : $this->birth_date,
             'major' => $this->major,
         ]);
 
+        $label = $this->isGuru ? 'Guru' : 'Siswa';
         $this->dispatch('alert', [
             'type' => 'success',
             'title' => 'Berhasil!',
-            'text' => 'Data Siswa Berhasil Disimpan.',
+            'text' => "Data {$label} Berhasil Disimpan.",
         ]);
 
         $this->closeModal();
@@ -277,18 +292,29 @@ class StudentList extends Component
             ]);
             return;
         }
-        $this->validate([
-            'nis' => 'required|string|max:50',
-            'nisn' => 'required|string|max:50',
-            'name' => 'required|string|max:255',
-            'whatsapp' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:255',
-            'grade' => 'required|string|max:10',
-            'class_name' => 'required|string|max:50',
-            'address' => 'nullable|string',
-            'birth_date' => 'nullable|date',
-            'major' => 'required|string',
-        ]);
+        // Different validation rules for guru vs siswa
+        if ($this->isGuru) {
+            $this->validate([
+                'nis' => 'required|string|max:50', // Used as NIP for guru
+                'name' => 'required|string|max:255',
+                'whatsapp' => 'nullable|string|max:20',
+                'email' => 'nullable|email|max:255',
+                'major' => 'nullable|string', // Used as Bidang/Mata Pelajaran for guru
+            ]);
+        } else {
+            $this->validate([
+                'nis' => 'required|string|max:50',
+                'nisn' => 'required|string|max:50',
+                'name' => 'required|string|max:255',
+                'whatsapp' => 'nullable|string|max:20',
+                'email' => 'nullable|email|max:255',
+                'grade' => 'required|string|max:10',
+                'class_name' => 'required|string|max:50',
+                'address' => 'nullable|string',
+                'birth_date' => 'nullable|date',
+                'major' => 'required|string',
+            ]);
+        }
 
         $student = Student::where('school_id', $this->school->id)
             ->where('project_id', $this->project->id)
@@ -296,22 +322,23 @@ class StudentList extends Component
 
         $student->update([
             'nis' => $this->nis,
-            'nisn' => $this->nisn,
+            'nisn' => $this->isGuru ? null : $this->nisn,
             'name' => $this->name,
             'whatsapp' => $this->whatsapp,
             'email' => $this->email,
-            'grade' => $this->grade,
-            'class_name' => $this->class_name,
-            'address' => $this->address,
-            'birth_place' => $this->birth_place,
-            'birth_date' => $this->birth_date,
+            'grade' => $this->isGuru ? null : $this->grade,
+            'class_name' => $this->isGuru ? null : $this->class_name,
+            'address' => $this->isGuru ? null : $this->address,
+            'birth_place' => $this->isGuru ? null : $this->birth_place,
+            'birth_date' => $this->isGuru ? null : $this->birth_date,
             'major' => $this->major,
         ]);
 
+        $label = $this->isGuru ? 'Guru' : 'Siswa';
         $this->dispatch('alert', [
             'type' => 'success',
             'title' => 'Berhasil!',
-            'text' => 'Data Siswa Berhasil Diperbarui.',
+            'text' => "Data {$label} Berhasil Diperbarui.",
         ]);
 
         $this->closeModal();

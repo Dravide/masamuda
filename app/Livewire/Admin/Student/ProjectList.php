@@ -27,6 +27,7 @@ class ProjectList extends Component
     public $name;
     public $academic_year_id;
     public $type;
+    public $target = 'siswa';
     public $description;
     public $date;
     public $status = 'draft';
@@ -36,6 +37,7 @@ class ProjectList extends Component
     public $academicYears = [];
     public $projectTypes = [];
     public $projectStatuses = [];
+    public $projectTargets = [];
     public $activeAcademicYear = null;
 
     protected $queryString = [
@@ -49,6 +51,7 @@ class ProjectList extends Component
         $this->academicYears = AcademicYear::orderBy('year_name', 'desc')->get();
         $this->projectTypes = Project::TYPES;
         $this->projectStatuses = Project::STATUSES;
+        $this->projectTargets = Project::TARGETS;
         $this->activeAcademicYear = AcademicYear::where('is_active', true)->first();
     }
 
@@ -112,6 +115,7 @@ class ProjectList extends Component
         $this->name = $project->name;
         $this->academic_year_id = $project->academic_year_id;
         $this->type = $project->type;
+        $this->target = $project->target;
         $this->description = $project->description;
         $this->date = $project->date?->format('Y-m-d');
         $this->status = $project->status;
@@ -127,6 +131,7 @@ class ProjectList extends Component
             'name' => 'required|string|max:255',
             'academic_year_id' => 'required|exists:academic_years,id',
             'type' => 'required|string|in:' . implode(',', Project::TYPES),
+            'target' => 'required|string|in:' . implode(',', array_keys(Project::TARGETS)),
             'description' => 'nullable|string',
             'date' => 'nullable|date',
             'status' => 'required|string|in:' . implode(',', array_keys(Project::STATUSES)),
@@ -137,6 +142,7 @@ class ProjectList extends Component
             'name' => $this->name,
             'academic_year_id' => $this->academic_year_id,
             'type' => $this->type,
+            'target' => $this->target,
             'description' => $this->description,
             'date' => $this->date,
             'status' => $this->status,
@@ -158,6 +164,7 @@ class ProjectList extends Component
             'name' => 'required|string|max:255',
             'academic_year_id' => 'required|exists:academic_years,id',
             'type' => 'required|string|in:' . implode(',', Project::TYPES),
+            'target' => 'required|string|in:' . implode(',', array_keys(Project::TARGETS)),
             'description' => 'nullable|string',
             'date' => 'nullable|date',
             'status' => 'required|string|in:' . implode(',', array_keys(Project::STATUSES)),
@@ -170,6 +177,7 @@ class ProjectList extends Component
             'name' => $this->name,
             'academic_year_id' => $this->academic_year_id,
             'type' => $this->type,
+            'target' => $this->target,
             'description' => $this->description,
             'date' => $this->date,
             'status' => $this->status,
@@ -231,7 +239,8 @@ class ProjectList extends Component
 
     public function resetForm()
     {
-        $this->reset(['school_id', 'name', 'academic_year_id', 'type', 'description', 'date', 'projectId']);
+        $this->reset(['school_id', 'name', 'academic_year_id', 'type', 'target', 'description', 'date', 'projectId']);
         $this->status = 'draft';
+        $this->target = 'siswa';
     }
 }

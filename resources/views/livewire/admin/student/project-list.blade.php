@@ -127,6 +127,7 @@
                             <th>Project</th>
                             <th>Sekolah</th>
                             <th>Tahun Ajaran</th>
+                            <th>Target</th>
                             <th class="text-center">Jumlah Siswa</th>
                             <th>Status</th>
                             <th class="text-end">Aksi</th>
@@ -150,6 +151,14 @@
                                 </td>
                                 <td>{{ $project->school->name ?? '-' }}</td>
                                 <td>{{ $project->academicYear->year_name ?? '-' }}</td>
+                                <td>
+                                    @php
+                                        $targetClass = $project->target === 'guru' ? 'warning' : 'primary';
+                                    @endphp
+                                    <span class="badge bg-{{ $targetClass }}-subtle text-{{ $targetClass }}">
+                                        {{ $projectTargets[$project->target] ?? ucfirst($project->target ?? 'siswa') }}
+                                    </span>
+                                </td>
                                 <td class="text-center">
                                     <span class="badge bg-info-subtle text-info fs-6">{{ $project->students_count }}</span>
                                 </td>
@@ -195,8 +204,10 @@
                                 </td>
                                 <td class="text-end">
                                     <a href="{{ route('admin.project.show', $project->id) }}"
-                                        class="btn btn-sm btn-outline-primary waves-effect">
-                                        <i class="fi fi-rr-users-alt me-1"></i> Siswa
+                                        class="btn btn-sm btn-outline-{{ $project->target === 'guru' ? 'warning' : 'primary' }} waves-effect">
+                                        <i
+                                            class="fi fi-rr-{{ $project->target === 'guru' ? 'chalkboard-user' : 'users-alt' }} me-1"></i>
+                                        {{ $project->target === 'guru' ? 'Guru' : 'Siswa' }}
                                     </a>
                                     <button wire:click="edit({{ $project->id }})"
                                         class="btn btn-sm btn-icon btn-outline-warning waves-effect">
@@ -210,7 +221,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center py-5">
+                                <td colspan="7" class="text-center py-5">
                                     <div class="text-muted">
                                         <i class="fi fi-rr-folder fs-1 d-block mb-2"></i>
                                         Tidak ada data project ditemukan.
@@ -285,6 +296,24 @@
                                 </div>
                             </div>
 
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Target <span class="text-danger">*</span></label>
+                                    <select class="form-select @error('target') is-invalid @enderror" wire:model="target">
+                                        @foreach($projectTargets as $key => $label)
+                                            <option value="{{ $key }}">{{ $label }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('target') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Tanggal</label>
+                                    <input type="date" class="form-control @error('date') is-invalid @enderror"
+                                        wire:model="date">
+                                    @error('date') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+
                             <div class="mb-3">
                                 <label class="form-label">Deskripsi</label>
                                 <textarea class="form-control @error('description') is-invalid @enderror"
@@ -292,22 +321,14 @@
                                 @error('description') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
 
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Tanggal</label>
-                                    <input type="date" class="form-control @error('date') is-invalid @enderror"
-                                        wire:model="date">
-                                    @error('date') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Status <span class="text-danger">*</span></label>
-                                    <select class="form-select @error('status') is-invalid @enderror" wire:model="status">
-                                        @foreach($projectStatuses as $key => $label)
-                                            <option value="{{ $key }}">{{ $label }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('status') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                </div>
+                            <div class="mb-3">
+                                <label class="form-label">Status <span class="text-danger">*</span></label>
+                                <select class="form-select @error('status') is-invalid @enderror" wire:model="status">
+                                    @foreach($projectStatuses as $key => $label)
+                                        <option value="{{ $key }}">{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                                @error('status') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="text-end mt-4">

@@ -62,6 +62,7 @@ class ByProject extends Component
 
     public $availableMajors = [];
     public $isSmp = false;
+    public $isGuru = false;
 
     public $allStudents = [];
 
@@ -77,10 +78,11 @@ class ByProject extends Component
     {
         $this->project = $project;
         $this->isSmp = $project->school->jenjang === 'smp';
+        $this->isGuru = $project->target === 'guru';
 
-        if (!$this->isSmp) {
+        if (!$this->isSmp && !$this->isGuru) {
             $this->availableMajors = Major::where('is_active', true)->pluck('name')->toArray();
-        } else {
+        } else if ($this->isSmp) {
             $this->major = 'UMUM';
         }
     }
@@ -206,39 +208,51 @@ class ByProject extends Component
 
     public function store()
     {
-        $this->validate([
-            'nis' => 'required|string|max:50',
-            'nisn' => 'required|string|max:50',
-            'name' => 'required|string|max:255',
-            'whatsapp' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:255',
-            'grade' => 'required|string|max:10',
-            'class_name' => 'required|string|max:50',
-            'address' => 'nullable|string',
-            'birth_date' => 'nullable|date',
-            'major' => 'required|string',
-        ]);
+        // Conditional validation based on target
+        if ($this->isGuru) {
+            $this->validate([
+                'nis' => 'required|string|max:50',
+                'name' => 'required|string|max:255',
+                'whatsapp' => 'nullable|string|max:20',
+                'email' => 'nullable|email|max:255',
+                'major' => 'nullable|string',
+            ]);
+        } else {
+            $this->validate([
+                'nis' => 'required|string|max:50',
+                'nisn' => 'required|string|max:50',
+                'name' => 'required|string|max:255',
+                'whatsapp' => 'nullable|string|max:20',
+                'email' => 'nullable|email|max:255',
+                'grade' => 'required|string|max:10',
+                'class_name' => 'required|string|max:50',
+                'address' => 'nullable|string',
+                'birth_date' => 'nullable|date',
+                'major' => 'required|string',
+            ]);
+        }
 
         Student::create([
             'school_id' => $this->project->school_id,
             'project_id' => $this->project->id,
             'nis' => $this->nis,
-            'nisn' => $this->nisn,
+            'nisn' => $this->isGuru ? null : $this->nisn,
             'name' => $this->name,
             'whatsapp' => $this->whatsapp,
             'email' => $this->email,
-            'grade' => $this->grade,
-            'class_name' => $this->class_name,
-            'address' => $this->address,
-            'birth_place' => $this->birth_place,
-            'birth_date' => $this->birth_date,
+            'grade' => $this->isGuru ? null : $this->grade,
+            'class_name' => $this->isGuru ? null : $this->class_name,
+            'address' => $this->isGuru ? null : $this->address,
+            'birth_place' => $this->isGuru ? null : $this->birth_place,
+            'birth_date' => $this->isGuru ? null : $this->birth_date,
             'major' => $this->major,
         ]);
 
+        $label = $this->isGuru ? 'Guru' : 'Siswa';
         $this->dispatch('alert', [
             'type' => 'success',
             'title' => 'Berhasil!',
-            'text' => 'Data Siswa Berhasil Disimpan.',
+            'text' => "Data {$label} Berhasil Disimpan.",
         ]);
 
         $this->closeModal();
@@ -246,39 +260,51 @@ class ByProject extends Component
 
     public function update()
     {
-        $this->validate([
-            'nis' => 'required|string|max:50',
-            'nisn' => 'required|string|max:50',
-            'name' => 'required|string|max:255',
-            'whatsapp' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:255',
-            'grade' => 'required|string|max:10',
-            'class_name' => 'required|string|max:50',
-            'address' => 'nullable|string',
-            'birth_date' => 'nullable|date',
-            'major' => 'required|string',
-        ]);
+        // Conditional validation based on target
+        if ($this->isGuru) {
+            $this->validate([
+                'nis' => 'required|string|max:50',
+                'name' => 'required|string|max:255',
+                'whatsapp' => 'nullable|string|max:20',
+                'email' => 'nullable|email|max:255',
+                'major' => 'nullable|string',
+            ]);
+        } else {
+            $this->validate([
+                'nis' => 'required|string|max:50',
+                'nisn' => 'required|string|max:50',
+                'name' => 'required|string|max:255',
+                'whatsapp' => 'nullable|string|max:20',
+                'email' => 'nullable|email|max:255',
+                'grade' => 'required|string|max:10',
+                'class_name' => 'required|string|max:50',
+                'address' => 'nullable|string',
+                'birth_date' => 'nullable|date',
+                'major' => 'required|string',
+            ]);
+        }
 
         $student = Student::where('project_id', $this->project->id)->findOrFail($this->studentId);
 
         $student->update([
             'nis' => $this->nis,
-            'nisn' => $this->nisn,
+            'nisn' => $this->isGuru ? null : $this->nisn,
             'name' => $this->name,
             'whatsapp' => $this->whatsapp,
             'email' => $this->email,
-            'grade' => $this->grade,
-            'class_name' => $this->class_name,
-            'address' => $this->address,
-            'birth_place' => $this->birth_place,
-            'birth_date' => $this->birth_date,
+            'grade' => $this->isGuru ? null : $this->grade,
+            'class_name' => $this->isGuru ? null : $this->class_name,
+            'address' => $this->isGuru ? null : $this->address,
+            'birth_place' => $this->isGuru ? null : $this->birth_place,
+            'birth_date' => $this->isGuru ? null : $this->birth_date,
             'major' => $this->major,
         ]);
 
+        $label = $this->isGuru ? 'Guru' : 'Siswa';
         $this->dispatch('alert', [
             'type' => 'success',
             'title' => 'Berhasil!',
-            'text' => 'Data Siswa Berhasil Diperbarui.',
+            'text' => "Data {$label} Berhasil Diperbarui.",
         ]);
 
         $this->closeModal();
@@ -610,10 +636,11 @@ class ByProject extends Component
             ->orderBy($this->sortColumn, $this->sortDirection)
             ->paginate($this->perPage);
 
+        $label = $this->isGuru ? 'Guru' : 'Siswa';
         return view('livewire.admin.student.by-project', [
             'students' => $students
         ])
             ->layout('layouts.dashboard')
-            ->title('Data Siswa - ' . $this->project->name);
+            ->title("Data {$label} - " . $this->project->name);
     }
 }

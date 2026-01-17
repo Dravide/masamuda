@@ -20,12 +20,14 @@
                 <button wire:click="exportExcel" class="btn btn-success waves-effect waves-light">
                     <i class="fi fi-rr-file-excel me-1"></i> Export Excel
                 </button>
-                <a href="{{ route('admin.project.siswa.import', $project) }}"
-                    class="btn btn-outline-primary waves-effect waves-light">
-                    <i class="fi fi-rr-file-import me-1"></i> Import Siswa
-                </a>
+                @if(!$isGuru)
+                    <a href="{{ route('admin.project.siswa.import', $project) }}"
+                        class="btn btn-outline-primary waves-effect waves-light">
+                        <i class="fi fi-rr-file-import me-1"></i> Import Siswa
+                    </a>
+                @endif
                 <button wire:click="create" class="btn btn-primary waves-effect waves-light">
-                    <i class="fi fi-rr-plus me-1"></i> Tambah Siswa
+                    <i class="fi fi-rr-plus me-1"></i> Tambah {{ $isGuru ? 'Guru' : 'Siswa' }}
                 </button>
                 <div class="vr"></div>
                 <button wire:click="openPropagationModal" class="btn btn-primary waves-effect waves-light">
@@ -71,10 +73,10 @@
                         <div class="card card-action action-border-warning p-1 position-relative">
                             <div class="card-body d-flex gap-3 align-items-center p-4">
                                 <div class="clearfix pe-2 text-warning">
-                                    <i class="fi fi-sr-users fs-1"></i>
+                                    <i class="fi fi-sr-{{ $isGuru ? 'chalkboard-user' : 'users' }} fs-1"></i>
                                 </div>
                                 <div class="clearfix">
-                                    <div class="mb-1">Jumlah Siswa</div>
+                                    <div class="mb-1">Jumlah {{ $isGuru ? 'Guru' : 'Siswa' }}</div>
                                     <h3 class="mb-0 fw-bold">{{ number_format($students->total()) }}</h3>
                                 </div>
                             </div>
@@ -113,7 +115,7 @@
                 <div class="modal-dialog modal-lg modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">Propagasi Foto Siswa</h5>
+                            <h5 class="modal-title">Propagasi Foto {{ $isGuru ? 'Guru' : 'Siswa' }}</h5>
                             <button wire:click="closePropagationModal" type="button" class="btn-close"
                                 aria-label="Close"></button>
                         </div>
@@ -123,12 +125,12 @@
                                     <h6 class="alert-heading fw-bold mb-1"><i class="fi fi-rr-info me-1"></i> Petunjuk Upload
                                     </h6>
                                     <ul class="mb-0 small ps-3">
-                                        <li>Upload file <strong>.ZIP</strong> (Maks. 50MB) berisi foto siswa.</li>
-                                        <li>Format nama file foto: <strong>NIS_Nama.jpg</strong> atau
-                                            <strong>NISN_Nama.png</strong>.
+                                        <li>Upload file <strong>.ZIP</strong> (Maks. 50MB) berisi foto {{ $isGuru ? 'guru' : 'siswa' }}.</li>
+                                        <li>Format nama file foto: <strong>{{ $isGuru ? 'NIP' : 'NIS' }}_Nama.jpg</strong> atau
+                                            <strong>{{ $isGuru ? 'NIP' : 'NISN' }}_Nama.png</strong>.
                                         </li>
-                                        <li>Contoh: <code>12345_Budi Santoso.jpg</code></li>
-                                        <li>Sistem akan mencocokkan berdasarkan NIS atau NISN di awal nama file.</li>
+                                        <li>Contoh: <code>{{ $isGuru ? '199112302025211070_Ahmad Surya.jpg' : '12345_Budi Santoso.jpg' }}</code></li>
+                                        <li>Sistem akan mencocokkan berdasarkan {{ $isGuru ? 'NIP' : 'NIS atau NISN' }} di awal nama file.</li>
                                     </ul>
                                 </div>
 
@@ -174,9 +176,9 @@
                                         <thead class="table-light sticky-top">
                                             <tr>
                                                 <th>Nama File</th>
-                                                <th>Identifier (NIS/NISN)</th>
+                                                <th>Identifier ({{ $isGuru ? 'NIP' : 'NIS/NISN' }})</th>
                                                 <th>Nama di File</th>
-                                                <th>Match Siswa</th>
+                                                <th>Match {{ $isGuru ? 'Guru' : 'Siswa' }}</th>
                                                 <th>Manual Match</th>
                                                 <th>Status</th>
                                             </tr>
@@ -194,7 +196,7 @@
                                                             <div style="min-width: 200px;">
                                                                 <select class="form-select form-select-sm"
                                                                     wire:change="updateManualMatch({{ $index }}, $event.target.value)">
-                                                                    <option value="">-- Pilih Siswa Manual --</option>
+                                                                    <option value="">-- Pilih {{ $isGuru ? 'Guru' : 'Siswa' }} Manual --</option>
                                                                     @foreach($allStudents as $student)
                                                                         <option value="{{ $student['id'] }}" {{ $item['student_id'] == $student['id'] ? 'selected' : '' }}>
                                                                             {{ $student['name'] }} ({{ $student['nis'] }})
@@ -278,7 +280,7 @@
                                     <div class="text-center py-5">
                                         <div class="text-muted">
                                             <i class="fi fi-rr-picture fs-1 d-block mb-2"></i>
-                                            Tidak ada foto tersedia untuk siswa ini.
+                                            Tidak ada foto tersedia untuk {{ $isGuru ? 'guru' : 'siswa' }} ini.
                                         </div>
                                     </div>
                                 @endif
@@ -292,10 +294,11 @@
         <!-- Students Table Card -->
         <div class="card">
             <div class="card-header d-flex gap-3 flex-wrap align-items-center justify-content-between">
-                <h6 class="card-title mb-0">Daftar Siswa</h6>
+                <h6 class="card-title mb-0">Daftar {{ $isGuru ? 'Guru' : 'Siswa' }}</h6>
                 <div class="clearfix d-flex align-items-center gap-3">
                     <div class="search-box">
-                        <input type="text" class="form-control" placeholder="Cari Siswa, NIS, NISN..."
+                        <input type="text" class="form-control"
+                            placeholder="Cari {{ $isGuru ? 'Guru, NIP' : 'Siswa, NIS, NISN' }}..."
                             wire:model.live.debounce.300ms="search">
                     </div>
                     <select class="form-select w-auto" wire:model.live="filterPhoto">
@@ -315,22 +318,26 @@
                     <thead class="table-light">
                         <tr>
                             <th wire:click="sortBy('nis')" style="cursor: pointer;">
-                                NIS @if($sortColumn == 'nis') <i
+                                {{ $isGuru ? 'NIP' : 'NIS' }} @if($sortColumn == 'nis') <i
                                 class="fi fi-rr-arrow-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i> @endif
                             </th>
                             <th wire:click="sortBy('name')" style="cursor: pointer;">
                                 Nama Lengkap @if($sortColumn == 'name') <i
                                 class="fi fi-rr-arrow-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i> @endif
                             </th>
-                            <th wire:click="sortBy('grade')" style="cursor: pointer;">
-                                Kelas @if($sortColumn == 'grade') <i
-                                class="fi fi-rr-arrow-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i> @endif
-                            </th>
+                            @if(!$isGuru)
+                                <th wire:click="sortBy('grade')" style="cursor: pointer;">
+                                    Kelas @if($sortColumn == 'grade') <i
+                                    class="fi fi-rr-arrow-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i> @endif
+                                </th>
+                            @endif
                             <th wire:click="sortBy('major')" style="cursor: pointer;">
-                                Jurusan @if($sortColumn == 'major') <i
+                                {{ $isGuru ? 'Bidang/Mapel' : 'Jurusan' }} @if($sortColumn == 'major') <i
                                 class="fi fi-rr-arrow-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i> @endif
                             </th>
-                            <th>Tanggal Lahir</th>
+                            @if(!$isGuru)
+                                <th>Tanggal Lahir</th>
+                            @endif
                             <th>WhatsApp</th>
                             <th wire:click="sortBy('photos_count')" style="cursor: pointer;">
                                 Jumlah Foto @if($sortColumn == 'photos_count') <i
@@ -345,7 +352,9 @@
                             <tr>
                                 <td>
                                     <span class="fw-medium">{{ $student->nis }}</span>
-                                    <div class="small text-muted">{{ $student->nisn }}</div>
+                                    @if(!$isGuru)
+                                        <div class="small text-muted">{{ $student->nisn }}</div>
+                                    @endif
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
@@ -358,18 +367,32 @@
                                         </button>
                                     </div>
                                 </td>
+                                @if(!$isGuru)
+                                    <td>
+                                        @if($student->grade)
+                                            <span class="badge bg-secondary">{{ $student->grade }} {{ $student->class_name }}</span>
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+                                @endif
                                 <td>
-                                    @if($student->grade)
-                                        <span class="badge bg-secondary">{{ $student->grade }} {{ $student->class_name }}</span>
+                                    @if($student->major)
+                                        <span
+                                            class="badge bg-{{ $isGuru ? 'warning' : 'info' }}-subtle text-{{ $isGuru ? 'warning' : 'info' }}">{{ $student->major }}</span>
                                     @else
-                                        -
+                                        <span class="text-muted">-</span>
                                     @endif
                                 </td>
-                                <td>
-                                    <span class="badge bg-info-subtle text-info">{{ $student->major }}</span>
-                                </td>
-                                <td>{{ \Carbon\Carbon::parse($student->birth_date)->locale('id')->translatedFormat('d F Y') }}
-                                </td>
+                                @if(!$isGuru)
+                                    <td>
+                                        @if($student->birth_date)
+                                            {{ \Carbon\Carbon::parse($student->birth_date)->locale('id')->translatedFormat('d F Y') }}
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+                                @endif
                                 <td>
                                     @if($student->whatsapp)
                                         <a href="https://wa.me/{{ preg_replace('/^0/', '62', preg_replace('/[^0-9]/', '', $student->whatsapp)) }}"
@@ -394,10 +417,12 @@
                                 </td>
                                 <td class="text-end">
                                     <div class="d-flex gap-1 justify-content-end">
-                                        <button wire:click="edit({{ $student->id }})" class="btn btn-sm btn-icon btn-action-primary" title="Edit">
+                                        <button wire:click="edit({{ $student->id }})"
+                                            class="btn btn-sm btn-icon btn-action-primary" title="Edit">
                                             <i class="fi fi-rr-edit"></i>
                                         </button>
-                                        <button onclick="confirmDelete({{ $student->id }})" class="btn btn-sm btn-icon btn-action-danger" title="Hapus">
+                                        <button onclick="confirmDelete({{ $student->id }})"
+                                            class="btn btn-sm btn-icon btn-action-danger" title="Hapus">
                                             <i class="fi fi-rr-trash"></i>
                                         </button>
                                     </div>
@@ -405,10 +430,11 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center py-5">
+                                <td colspan="{{ $isGuru ? 7 : 9 }}" class="text-center py-5">
                                     <div class="text-muted">
-                                        <i class="fi fi-rr-user fs-1 d-block mb-2"></i>
-                                        Tidak ada data siswa ditemukan untuk project ini.
+                                        <i
+                                            class="fi fi-rr-{{ $isGuru ? 'chalkboard-user' : 'user' }} fs-1 d-block mb-2"></i>
+                                        Tidak ada data {{ $isGuru ? 'guru' : 'siswa' }} ditemukan untuk project ini.
                                     </div>
                                 </td>
                             </tr>
@@ -431,116 +457,158 @@
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">{{ $isEdit ? 'Edit Data Siswa' : 'Tambah Siswa Baru' }}</h5>
+                        <h5 class="modal-title">{{ $isEdit ? 'Edit Data ' . ($isGuru ? 'Guru' : 'Siswa') : 'Tambah ' . ($isGuru ? 'Guru' : 'Siswa') . ' Baru' }}</h5>
                         <button wire:click="closeModal" type="button" class="btn-close" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <form wire:submit.prevent="{{ $isEdit ? 'update' : 'store' }}">
-                            <!-- REQUIRED FIELDS -->
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">NIS <span class="text-danger">*</span></label>
+                            @if($isGuru)
+                                <!-- GURU FORM -->
+                                <div class="mb-3">
+                                    <label class="form-label">NIP <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control @error('nis') is-invalid @enderror"
-                                        wire:model="nis" placeholder="Nomor Induk Sekolah">
+                                        wire:model="nis" placeholder="Nomor Induk Pegawai">
                                     @error('nis') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">NISN <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control @error('nisn') is-invalid @enderror"
-                                        wire:model="nisn" placeholder="Nomor Induk Siswa Nasional">
-                                    @error('nisn') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                </div>
-                            </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control @error('name') is-invalid @enderror"
-                                    wire:model="name" placeholder="Nama Lengkap Siswa">
-                                @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Tingkat Kelas <span class="text-danger">*</span></label>
-                                    <select class="form-select @error('grade') is-invalid @enderror" wire:model="grade">
-                                        <option value="">Pilih Tingkat</option>
-                                        @for ($i = 1; $i <= 12; $i++)
-                                            <option value="{{ $i }}">{{ $i }}</option>
-                                        @endfor
-                                    </select>
-                                    @error('grade') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                <div class="mb-3">
+                                    <label class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                        wire:model="name" placeholder="Nama Lengkap Guru">
+                                    @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Nama Kelas (Rombel) <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control @error('class_name') is-invalid @enderror"
-                                        wire:model="class_name" placeholder="Contoh: A, B, 1, IPA 1">
-                                    <div class="form-text small">Masukkan nama rombel/paralel, misal: A, B, 1, atau IPA 1.
-                                    </div>
-                                    @error('class_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                </div>
-                            </div>
 
-                            <div class="row">
-                                <div class="col-md-12 mb-3">
-                                    <label class="form-label">Jurusan <span class="text-danger">*</span></label>
-                                    @if($isSmp)
-                                        <input type="text" class="form-control" value="UMUM" readonly disabled>
-                                        <input type="hidden" wire:model="major" value="UMUM">
-                                    @else
-                                        <select class="form-select @error('major') is-invalid @enderror" wire:model="major">
-                                            <option value="">Pilih Jurusan</option>
-                                            @foreach($availableMajors as $m)
-                                                <option value="{{ $m }}">{{ $m }}</option>
-                                            @endforeach
-                                        </select>
-                                    @endif
+                                <div class="mb-3">
+                                    <label class="form-label">Bidang / Mata Pelajaran</label>
+                                    <input type="text" class="form-control @error('major') is-invalid @enderror"
+                                        wire:model="major" placeholder="Contoh: Matematika, Bahasa Indonesia">
                                     @error('major') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
-                            </div>
 
-                            <hr class="my-4 text-muted">
-                            <h6 class="mb-3 text-muted">Informasi Tambahan (Opsional)</h6>
+                                <hr class="my-4 text-muted">
+                                <h6 class="mb-3 text-muted">Informasi Kontak (Opsional)</h6>
 
-                            <!-- OPTIONAL FIELDS -->
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Tempat Lahir</label>
-                                    <input type="text" class="form-control @error('birth_place') is-invalid @enderror"
-                                        wire:model="birth_place" placeholder="Contoh: Jakarta">
-                                    @error('birth_place') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Nomor WhatsApp</label>
+                                        <input type="text" class="form-control @error('whatsapp') is-invalid @enderror"
+                                            wire:model="whatsapp" placeholder="Contoh: 08123456789">
+                                        @error('whatsapp') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" class="form-control @error('email') is-invalid @enderror"
+                                            wire:model="email" placeholder="Contoh: guru@sekolah.com">
+                                        @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    </div>
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Tanggal Lahir</label>
-                                    <input type="date" class="form-control @error('birth_date') is-invalid @enderror"
-                                        wire:model="birth_date">
-                                    @error('birth_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            @else
+                                <!-- SISWA FORM -->
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">NIS <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control @error('nis') is-invalid @enderror"
+                                            wire:model="nis" placeholder="Nomor Induk Sekolah">
+                                        @error('nis') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">NISN <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control @error('nisn') is-invalid @enderror"
+                                            wire:model="nisn" placeholder="Nomor Induk Siswa Nasional">
+                                        @error('nisn') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Nomor WhatsApp</label>
-                                    <input type="text" class="form-control @error('whatsapp') is-invalid @enderror"
-                                        wire:model="whatsapp" placeholder="Contoh: 08123456789">
-                                    @error('whatsapp') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                <div class="mb-3">
+                                    <label class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                        wire:model="name" placeholder="Nama Lengkap Siswa">
+                                    @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Email</label>
-                                    <input type="email" class="form-control @error('email') is-invalid @enderror"
-                                        wire:model="email" placeholder="Contoh: siswa@sekolah.com">
-                                    @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                </div>
-                            </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Alamat Lengkap</label>
-                                <textarea class="form-control @error('address') is-invalid @enderror" wire:model="address"
-                                    rows="3" placeholder="Alamat Tempat Tinggal"></textarea>
-                                @error('address') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Tingkat Kelas <span class="text-danger">*</span></label>
+                                        <select class="form-select @error('grade') is-invalid @enderror" wire:model="grade">
+                                            <option value="">Pilih Tingkat</option>
+                                            @for ($i = 1; $i <= 12; $i++)
+                                                <option value="{{ $i }}">{{ $i }}</option>
+                                            @endfor
+                                        </select>
+                                        @error('grade') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Nama Kelas (Rombel) <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control @error('class_name') is-invalid @enderror"
+                                            wire:model="class_name" placeholder="Contoh: A, B, 1, IPA 1">
+                                        <div class="form-text small">Masukkan nama rombel/paralel, misal: A, B, 1, atau IPA 1.
+                                        </div>
+                                        @error('class_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label class="form-label">Jurusan <span class="text-danger">*</span></label>
+                                        @if($isSmp)
+                                            <input type="text" class="form-control" value="UMUM" readonly disabled>
+                                            <input type="hidden" wire:model="major" value="UMUM">
+                                        @else
+                                            <select class="form-select @error('major') is-invalid @enderror" wire:model="major">
+                                                <option value="">Pilih Jurusan</option>
+                                                @foreach($availableMajors as $m)
+                                                    <option value="{{ $m }}">{{ $m }}</option>
+                                                @endforeach
+                                            </select>
+                                        @endif
+                                        @error('major') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    </div>
+                                </div>
+
+                                <hr class="my-4 text-muted">
+                                <h6 class="mb-3 text-muted">Informasi Tambahan (Opsional)</h6>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Tempat Lahir</label>
+                                        <input type="text" class="form-control @error('birth_place') is-invalid @enderror"
+                                            wire:model="birth_place" placeholder="Contoh: Jakarta">
+                                        @error('birth_place') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Tanggal Lahir</label>
+                                        <input type="date" class="form-control @error('birth_date') is-invalid @enderror"
+                                            wire:model="birth_date">
+                                        @error('birth_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Nomor WhatsApp</label>
+                                        <input type="text" class="form-control @error('whatsapp') is-invalid @enderror"
+                                            wire:model="whatsapp" placeholder="Contoh: 08123456789">
+                                        @error('whatsapp') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" class="form-control @error('email') is-invalid @enderror"
+                                            wire:model="email" placeholder="Contoh: siswa@sekolah.com">
+                                        @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Alamat Lengkap</label>
+                                    <textarea class="form-control @error('address') is-invalid @enderror" wire:model="address"
+                                        rows="3" placeholder="Alamat Tempat Tinggal"></textarea>
+                                    @error('address') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            @endif
 
                             <div class="text-end mt-4">
-                                <button wire:click="closeModal" type="button" class="btn btn-light waves-effect">Batal</button>
+                                <button wire:click="closeModal" type="button"
+                                    class="btn btn-light waves-effect">Batal</button>
                                 <button type="submit" class="btn btn-primary waves-effect waves-light">
                                     <span wire:loading.remove>{{ $isEdit ? 'Update' : 'Simpan' }}</span>
                                     <span wire:loading>Loading...</span>
@@ -556,7 +624,7 @@
     <script>
         function confirmDelete(id) {
             Swal.fire({
-                title: 'Hapus Data Siswa?',
+                title: 'Hapus Data {{ $isGuru ? "Guru" : "Siswa" }}?',
                 text: 'Data yang dihapus tidak dapat dikembalikan!',
                 icon: 'warning',
                 showCancelButton: true,

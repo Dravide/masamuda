@@ -127,6 +127,12 @@
                                     class="fi fi-rr-arrow-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
                                 @endif
                             </th>
+                            <th wire:click="sortBy('target')" style="cursor: pointer;">
+                                Target
+                                @if($sortColumn == 'target') <i
+                                    class="fi fi-rr-arrow-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                @endif
+                            </th>
                             <th class="text-center">Siswa</th>
                             <th wire:click="sortBy('status')" style="cursor: pointer;">
                                 Status
@@ -161,6 +167,14 @@
                                 <td>
                                     <span class="badge bg-info-subtle text-info">{{ $project->type }}</span>
                                 </td>
+                                <td>
+                                    @php
+                                        $targetClass = $project->target === 'guru' ? 'warning' : 'primary';
+                                    @endphp
+                                    <span class="badge bg-{{ $targetClass }}-subtle text-{{ $targetClass }}">
+                                        {{ $projectTargets[$project->target] ?? ucfirst($project->target) }}
+                                    </span>
+                                </td>
                                 <td class="text-center">
                                     <span class="badge bg-primary fs-6">{{ $project->students_count }}</span>
                                 </td>
@@ -179,10 +193,10 @@
                                 </td>
                                 <td class="text-end">
                                     @if($project->status === 'active' || $project->status === 'completed')
-                                        <a href="{{ route('sekolah.project.siswa', $project) }}"
+                                        <a href="{{ route('sekolah.project.data', $project) }}"
                                             class="btn btn-sm btn-{{ $project->status === 'completed' ? 'info' : 'success' }} waves-effect waves-light">
                                             <i
-                                                class="fi fi-rr-{{ $project->status === 'completed' ? 'eye' : 'users' }} me-1"></i>
+                                                class="fi fi-rr-{{ $project->status === 'completed' ? 'eye' : ($project->target === 'guru' ? 'chalkboard-user' : 'users') }} me-1"></i>
                                             {{ $project->status === 'completed' ? 'Lihat Data' : 'Input Data' }}
                                         </a>
                                     @else
@@ -195,7 +209,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center py-5">
+                                <td colspan="8" class="text-center py-5">
                                     <div class="text-muted">
                                         <i class="fi fi-rr-folder fs-1 d-block mb-2"></i>
                                         Tidak ada project ditemukan.<br>
@@ -242,7 +256,8 @@
                                         <option value="">Pilih Tahun</option>
                                         @foreach($academicYears as $year)
                                             <option value="{{ $year->id }}">{{ $year->year_name }} -
-                                                {{ ucfirst($year->semester) }}</option>
+                                                {{ ucfirst($year->semester) }}
+                                            </option>
                                         @endforeach
                                     </select>
                                     @error('academic_year_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -259,11 +274,22 @@
                                 </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Tanggal Pelaksanaan</label>
-                                <input type="date" class="form-control @error('date') is-invalid @enderror"
-                                    wire:model="date">
-                                @error('date') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Target <span class="text-danger">*</span></label>
+                                    <select class="form-select @error('target') is-invalid @enderror" wire:model="target">
+                                        @foreach($projectTargets as $key => $label)
+                                            <option value="{{ $key }}">{{ $label }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('target') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Tanggal Pelaksanaan</label>
+                                    <input type="date" class="form-control @error('date') is-invalid @enderror"
+                                        wire:model="date">
+                                    @error('date') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
                             </div>
 
                             <div class="mb-3">

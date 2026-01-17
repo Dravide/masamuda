@@ -26,6 +26,7 @@ class Index extends Component
     public $projectStatuses = [];
     public $academicYears = [];
     public $projectTypes = [];
+    public $projectTargets = [];
     public $activeAcademicYear = null;
 
     // Modal & Form
@@ -37,6 +38,7 @@ class Index extends Component
     public $name;
     public $academic_year_id;
     public $type;
+    public $target = 'siswa';
     public $description;
     public $date;
     public $status = 'draft';
@@ -51,6 +53,7 @@ class Index extends Component
         $this->school = School::where('user_id', Auth::id())->firstOrFail();
         $this->projectStatuses = Project::STATUSES;
         $this->projectTypes = Project::TYPES;
+        $this->projectTargets = Project::TARGETS;
         $this->academicYears = AcademicYear::orderBy('year_name', 'desc')->get();
         $this->activeAcademicYear = AcademicYear::where('is_active', true)->first();
     }
@@ -119,6 +122,7 @@ class Index extends Component
         $this->name = $project->name;
         $this->academic_year_id = $project->academic_year_id;
         $this->type = $project->type;
+        $this->target = $project->target;
         $this->description = $project->description;
         $this->date = $project->date?->format('Y-m-d');
         $this->status = $project->status;
@@ -133,6 +137,7 @@ class Index extends Component
             'name' => 'required|string|max:255',
             'academic_year_id' => 'required|exists:academic_years,id',
             'type' => 'required|string|in:' . implode(',', Project::TYPES),
+            'target' => 'required|string|in:' . implode(',', array_keys(Project::TARGETS)),
             'description' => 'nullable|string',
             'date' => 'nullable|date',
             'status' => 'required|string|in:' . implode(',', array_keys(Project::STATUSES)),
@@ -143,6 +148,7 @@ class Index extends Component
             'name' => $this->name,
             'academic_year_id' => $this->academic_year_id,
             'type' => $this->type,
+            'target' => $this->target,
             'description' => $this->description,
             'date' => $this->date,
             'status' => $this->status,
@@ -163,6 +169,7 @@ class Index extends Component
             'name' => 'required|string|max:255',
             'academic_year_id' => 'required|exists:academic_years,id',
             'type' => 'required|string|in:' . implode(',', Project::TYPES),
+            'target' => 'required|string|in:' . implode(',', array_keys(Project::TARGETS)),
             'description' => 'nullable|string',
             'date' => 'nullable|date',
             'status' => 'required|string|in:' . implode(',', array_keys(Project::STATUSES)),
@@ -174,6 +181,7 @@ class Index extends Component
             'name' => $this->name,
             'academic_year_id' => $this->academic_year_id,
             'type' => $this->type,
+            'target' => $this->target,
             'description' => $this->description,
             'date' => $this->date,
             'status' => $this->status,
@@ -208,7 +216,8 @@ class Index extends Component
 
     public function resetForm()
     {
-        $this->reset(['name', 'academic_year_id', 'type', 'description', 'date', 'projectId']);
+        $this->reset(['name', 'academic_year_id', 'type', 'target', 'description', 'date', 'projectId']);
         $this->status = 'draft';
+        $this->target = 'siswa';
     }
 }
