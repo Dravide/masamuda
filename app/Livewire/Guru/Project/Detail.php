@@ -20,6 +20,7 @@ class Detail extends Component
     public $search = '';
     public $perPage = 25;
     public $filterGrade = '';
+    public $isGuru = false;
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -37,6 +38,7 @@ class Detail extends Component
         }
 
         $this->project = $project;
+        $this->isGuru = $project->target == 'guru';
     }
 
     public function backToProjects()
@@ -219,6 +221,7 @@ class Detail extends Component
             'availableGrades' => $availableGrades,
             'totalStudents' => $totalStudents,
             'withPhotoCount' => $withPhotoCount,
+            'targetLabel' => $this->isGuru ? 'Guru' : 'Siswa',
         ])
             ->layout('layouts.dashboard')
             ->title('Detail Project - ' . $this->project->name);

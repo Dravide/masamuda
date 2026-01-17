@@ -59,10 +59,10 @@
                 <div class="card card-action action-border-warning h-100">
                     <div class="card-body d-flex align-items-center p-4">
                         <div class="avatar avatar-lg bg-warning-subtle text-warning rounded-circle me-3">
-                            <i class="fi fi-sr-users fs-3"></i>
+                            <i class="fi fi-sr-{{ $isGuru ? 'chalkboard-user' : 'users' }} fs-3"></i>
                         </div>
                         <div>
-                            <div class="text-muted small mb-1">Total Siswa</div>
+                            <div class="text-muted small mb-1">Total {{ $isGuru ? 'Guru' : 'Siswa' }}</div>
                             <h4 class="mb-0 fw-bold">{{ number_format($totalStudents) }}</h4>
                         </div>
                     </div>
@@ -75,7 +75,7 @@
                             <i class="fi fi-sr-picture fs-3"></i>
                         </div>
                         <div>
-                            <div class="text-muted small mb-1">Siswa dengan Foto</div>
+                            <div class="text-muted small mb-1">{{ $isGuru ? 'Guru' : 'Siswa' }} dengan Foto</div>
                             <h4 class="mb-0 fw-bold">{{ number_format($withPhotoCount) }}
                                 @if($totalStudents > 0)
                                     <small
@@ -91,18 +91,20 @@
         <!-- Table Card -->
         <div class="card">
             <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
-                <h5 class="card-title mb-0">Daftar Siswa</h5>
+                <h5 class="card-title mb-0">Daftar {{ $isGuru ? 'Guru' : 'Siswa' }}</h5>
                 <div class="d-flex align-items-center gap-2">
                     <div class="search-box">
                         <input type="text" class="form-control form-control-sm" placeholder="Search..."
                             wire:model.live.debounce.300ms="search">
                     </div>
-                    <select class="form-select form-select-sm w-auto" wire:model.live="filterGrade">
-                        <option value="">Semua Kelas</option>
-                        @foreach($availableGrades as $grade)
-                            <option value="{{ $grade }}">Kelas {{ $grade }}</option>
-                        @endforeach
-                    </select>
+                    @if(!$isGuru)
+                        <select class="form-select form-select-sm w-auto" wire:model.live="filterGrade">
+                            <option value="">Semua Kelas</option>
+                            @foreach($availableGrades as $grade)
+                                <option value="{{ $grade }}">Kelas {{ $grade }}</option>
+                            @endforeach
+                        </select>
+                    @endif
                     <select class="form-select form-select-sm w-auto" wire:model.live="perPage">
                         <option value="25">25</option>
                         <option value="50">50</option>
@@ -114,9 +116,13 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th>NIS</th>
-                            <th>Nama Siswa</th>
-                            <th>Kelas</th>
+                            <th>{{ $isGuru ? 'NIP' : 'NIS' }}</th>
+                            <th>Nama {{ $isGuru ? 'Guru' : 'Siswa' }}</th>
+                            @if(!$isGuru)
+                                <th>Kelas</th>
+                            @else
+                                <th>Bidang/Mata Pelajaran</th>
+                            @endif
                             <th class="text-center">Jumlah Foto</th>
                             <th class="text-center">Aksi</th>
                         </tr>
@@ -133,9 +139,15 @@
                                         <span class="fw-medium">{{ $student->name }}</span>
                                     </div>
                                 </td>
-                                <td>
-                                    <span class="badge bg-secondary">{{ $student->grade }} {{ $student->class_name }}</span>
-                                </td>
+                                @if(!$isGuru)
+                                    <td>
+                                        <span class="badge bg-secondary">{{ $student->grade }} {{ $student->class_name }}</span>
+                                    </td>
+                                @else
+                                    <td>
+                                        {{ $student->major ?? '-' }}
+                                    </td>
+                                @endif
                                 <td class="text-center">
                                     @if($student->photos_count > 0)
                                         <span class="badge bg-success">{{ $student->photos_count }}</span>
