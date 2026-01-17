@@ -21,6 +21,7 @@ class Detail extends Component
     public $perPage = 25;
     public $filterGrade = '';
     public $isGuru = false;
+    public $myStudentId = null;
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -39,6 +40,18 @@ class Detail extends Component
 
         $this->project = $project;
         $this->isGuru = $project->target == 'guru';
+
+        // Check if current teacher is in this project
+        if ($this->isGuru && $teacher->nip) {
+            $myRecord = Student::where('school_id', $teacher->school_id)
+                ->where('project_id', $this->project->id)
+                ->where('nis', $teacher->nip)
+                ->first();
+
+            if ($myRecord) {
+                $this->myStudentId = $myRecord->id;
+            }
+        }
     }
 
     public function backToProjects()

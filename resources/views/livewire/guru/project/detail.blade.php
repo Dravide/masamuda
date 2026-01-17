@@ -19,6 +19,12 @@
                 <button wire:click="backToProjects" class="btn btn-outline-secondary waves-effect">
                     <i class="fi fi-rr-arrow-left me-1"></i> Kembali
                 </button>
+                @if($myStudentId)
+                    <button wire:click="downloadStudentPhotos({{ $myStudentId }})"
+                        class="btn btn-warning waves-effect waves-light">
+                        <i class="fi fi-rr-user-pen me-1"></i> Unduh Foto Saya
+                    </button>
+                @endif
                 @if($withPhotoCount > 0)
                     <button wire:click="downloadAllPhotos" class="btn btn-success waves-effect waves-light">
                         <i class="fi fi-rr-download me-1"></i> Unduh Semua Foto
@@ -129,14 +135,19 @@
                     </thead>
                     <tbody>
                         @forelse($students as $student)
-                            <tr>
+                            <tr class="{{ $myStudentId == $student->id ? 'table-warning' : '' }}">
                                 <td>{{ $student->nis }}</td>
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <div class="avatar avatar-sm bg-primary-subtle text-primary rounded-circle me-2">
                                             <i class="fi fi-rr-user"></i>
                                         </div>
-                                        <span class="fw-medium">{{ $student->name }}</span>
+                                        <div>
+                                            <span class="fw-medium">{{ $student->name }}</span>
+                                            @if($myStudentId == $student->id)
+                                                <span class="badge bg-warning ms-1">Saya</span>
+                                            @endif
+                                        </div>
                                     </div>
                                 </td>
                                 @if(!$isGuru)
