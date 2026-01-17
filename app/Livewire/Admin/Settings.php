@@ -17,6 +17,7 @@ class Settings extends Component
     // General Settings
     public $appName;
     public $appTagline;
+    public $loginTitle;
 
     // Logo Uploads
     public $logoHeaderUpload;
@@ -45,6 +46,7 @@ class Settings extends Component
         // General
         $this->appName = $settings['app_name'] ?? config('app.name');
         $this->appTagline = $settings['app_tagline'] ?? '';
+        $this->loginTitle = $settings['login_title'] ?? 'Selamat Datang';
 
         // Logos
         $this->logoHeader = $settings['logo_header'] ?? null;
@@ -70,10 +72,12 @@ class Settings extends Component
         $this->validate([
             'appName' => 'required|string|max:60',
             'appTagline' => 'nullable|string|max:150',
+            'loginTitle' => 'nullable|string|max:100',
         ]);
 
         Setting::updateOrCreate(['key' => 'app_name'], ['value' => $this->appName]);
         Setting::updateOrCreate(['key' => 'app_tagline'], ['value' => $this->appTagline]);
+        Setting::updateOrCreate(['key' => 'login_title'], ['value' => $this->loginTitle]);
 
         $this->dispatch('alert', [
             'type' => 'success',

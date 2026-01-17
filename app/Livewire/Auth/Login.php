@@ -64,6 +64,9 @@ class Login extends Component
 
     public function render()
     {
-        return view('livewire.auth.login')->layout('layouts.auth');
+        $loginTitle = \App\Models\Setting::where('key', 'login_title')->value('value') ?? 'Selamat Datang';
+        return view('livewire.auth.login')
+            ->layout('layouts.auth')
+            ->title($loginTitle);
     }
 }

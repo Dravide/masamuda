@@ -64,6 +64,15 @@
                                             @error('appTagline') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                         </div>
                                     </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Judul Halaman Login</label>
+                                            <input type="text" class="form-control @error('loginTitle') is-invalid @enderror" 
+                                                wire:model="loginTitle" maxlength="100" placeholder="Selamat Datang">
+                                            <div class="form-text">Judul yang ditampilkan di halaman login (title tab browser)</div>
+                                            @error('loginTitle') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                        </div>
+                                    </div>
                                     <div class="mb-3">
                                         <label class="form-label">Preview</label>
                                         <div class="p-3 bg-light rounded">
