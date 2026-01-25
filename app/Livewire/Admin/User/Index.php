@@ -99,7 +99,7 @@ class Index extends Component
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users',
             'email' => 'required|email|max:255|unique:users',
-            'role' => 'required|in:admin,sekolah,siswa',
+            'role' => 'required|in:admin,sekolah,siswa,guru',
             'password' => 'required|min:8|confirmed',
             'is_active' => 'boolean',
         ]);
@@ -139,7 +139,7 @@ class Index extends Component
         $rules = [
             'name' => 'required|string|max:255',
             'username' => ['required', 'string', 'max:255', Rule::unique('users')->ignore($this->userId)],
-            'role' => 'required|in:admin,sekolah,siswa',
+            'role' => 'required|in:admin,sekolah,siswa,guru',
             'is_active' => 'boolean',
         ];
 

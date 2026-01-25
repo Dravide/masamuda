@@ -55,6 +55,12 @@
                                             <label class="form-check-label" for="roleSiswa">Siswa</label>
                                         </div>
                                     </li>
+                                    <li>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="guru" id="roleGuru" wire:model.live="roleFilter">
+                                            <label class="form-check-label" for="roleGuru">Guru</label>
+                                        </div>
+                                    </li>
                                 </ul>
                             </div>
                             <select class="form-select w-auto" wire:model.live="statusFilter">
@@ -102,6 +108,8 @@
                                                     <span class="badge bg-primary-subtle text-primary">Admin</span>
                                                 @elseif($user->role == 'sekolah')
                                                     <span class="badge bg-info-subtle text-info">Sekolah</span>
+                                                @elseif($user->role == 'guru')
+                                                    <span class="badge bg-purple-subtle text-purple">Guru</span>
                                                 @else
                                                     <span class="badge bg-secondary-subtle text-secondary">Siswa</span>
                                                 @endif
@@ -192,6 +200,7 @@
                                 <option value="">Pilih Role</option>
                                 <option value="admin">Admin</option>
                                 <option value="sekolah">Sekolah</option>
+                                <option value="guru">Guru</option>
                                 <option value="siswa">Siswa</option>
                             </select>
                             @error('role') <div class="invalid-feedback">{{ $message }}</div> @enderror
