@@ -63,41 +63,71 @@
                         @if ($target === 'school')
                             <div class="mb-4">
                                 <label class="form-label">Pilih Sekolah</label>
-                                <select wire:model="school_id" class="form-select @error('school_id') is-invalid @enderror">
-                                    <option value="">-- Pilih Sekolah --</option>
-                                    @foreach ($schools as $school)
-                                        <option value="{{ $school->id }}">{{ $school->name }}</option>
-                                    @endforeach
-                                </select>
-                                @error('school_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                <div wire:ignore>
+                                    <select x-data x-init="
+                                        $($el).select2({
+                                            placeholder: '-- Pilih Sekolah --',
+                                            width: '100%'
+                                        });
+                                        $($el).on('change', function (e) {
+                                            @this.set('school_id', $(this).val());
+                                        });
+                                    " id="school-select" class="form-select">
+                                        <option value="">-- Pilih Sekolah --</option>
+                                        @foreach ($schools as $school)
+                                            <option value="{{ $school->id }}">{{ $school->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                @error('school_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                             </div>
                         @endif
 
                         @if ($target === 'project')
                             <div class="mb-4">
                                 <label class="form-label">Pilih Project</label>
-                                <select wire:model="project_id" class="form-select @error('project_id') is-invalid @enderror">
-                                    <option value="">-- Pilih Project --</option>
-                                    @foreach ($projects as $project)
-                                        <option value="{{ $project->id }}">{{ $project->name }} ({{ $project->school->name ?? '-' }})</option>
-                                    @endforeach
-                                </select>
-                                 @error('project_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                <div wire:ignore>
+                                    <select x-data x-init="
+                                        $($el).select2({
+                                            placeholder: '-- Pilih Project --',
+                                            width: '100%'
+                                        });
+                                        $($el).on('change', function (e) {
+                                            @this.set('project_id', $(this).val());
+                                        });
+                                    " id="project-select" class="form-select">
+                                        <option value="">-- Pilih Project --</option>
+                                        @foreach ($projects as $project)
+                                            <option value="{{ $project->id }}">{{ $project->name }} ({{ $project->school->name ?? '-' }})</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                 @error('project_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                             </div>
                         @endif
 
                         @if ($target === 'student')
                             <div class="mb-4">
                                 <label class="form-label">Pilih Siswa</label>
-                                {{-- Simple Select for now --}}
-                                <select wire:model="student_id" class="form-select @error('student_id') is-invalid @enderror">
-                                    <option value="">-- Pilih Siswa --</option>
-                                    @foreach ($students as $student)
-                                        <option value="{{ $student->id }}">{{ $student->name }} - {{ $student->school->name ?? '' }}</option>
-                                    @endforeach
-                                </select>
-                                 @error('student_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                <div class="form-text">*Menampilkan 100 siswa pertama</div>
+                                <div wire:ignore>
+                                    <select x-data x-init="
+                                        $($el).select2({
+                                            placeholder: '-- Pilih Siswa --',
+                                            width: '100%'
+                                        });
+                                        $($el).on('change', function (e) {
+                                            @this.set('student_id', $(this).val());
+                                        });
+                                    " id="student-select" class="form-select">
+                                        <option value="">-- Pilih Siswa --</option>
+                                        @foreach ($students as $student)
+                                            <option value="{{ $student->id }}">
+                                                {{ $student->name }} ({{ $student->school->name ?? 'No School' }})
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                @error('student_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                             </div>
                         @endif
 
@@ -148,3 +178,78 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <style>
+        .select2-container--default .select2-selection--single {
+            background-color: #fff;
+            border: 1px solid #ced4da !important;
+            border-radius: 0.375rem !important;
+            height: calc(1.5em + 1rem + 2px) !important;
+            padding: 0.375rem 2.25rem 0.375rem 0.75rem !important;
+            display: flex;
+            align-items: center;
+        }
+        
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 1.5 !important;
+            padding-left: 0 !important;
+            color: #212529 !important;
+            flex-grow: 1;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 100% !important;
+            top: 0 !important;
+            right: 0.75rem !important;
+            width: auto !important;
+            display: flex;
+            align-items: center;
+        }
+        
+        .select2-container--default .select2-selection--single .select2-selection__arrow b {
+            display: none;
+        }
+
+        /* Custom Arrow */
+        .select2-container--default .select2-selection--single .select2-selection__arrow::after {
+            content: '';
+            border: solid #6c757d;
+            border-width: 0 2px 2px 0;
+            display: inline-block;
+            padding: 3px;
+            transform: rotate(45deg);
+            -webkit-transform: rotate(45deg);
+        }
+
+        .select2-container--default.select2-container--open .select2-selection--single {
+            border-color: #86b7fe !important;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+            outline: 0;
+        }
+
+        .select2-dropdown {
+            border: 1px solid #ced4da !important;
+            border-radius: 0.375rem !important;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            z-index: 9999;
+        }
+
+        .select2-results__option {
+            padding: 0.375rem 0.75rem !important;
+        }
+
+        .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+            background-color: #0d6efd !important;
+            color: white !important;
+        }
+
+        /* Fix placeholder color */
+        .select2-container--default .select2-selection--single .select2-selection__placeholder {
+            color: #6c757d;
+        }
+    </style>
+@endpush

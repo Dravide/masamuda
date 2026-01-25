@@ -66,6 +66,14 @@ class ByProject extends Component
 
     public $allStudents = [];
 
+    // Copy Students Properties
+    public $showCopyModal = false;
+    public $sourceProjectId = null;
+    public $sourceStudents = [];
+    public $selectedStudents = [];
+    public $selectAll = false;
+    public $otherProjects = [];
+
     protected $queryString = [
         'search' => ['except' => ''],
         'perPage' => ['except' => 10],
@@ -166,6 +174,97 @@ class ByProject extends Component
     {
         $this->showPhotoModal = false;
         $this->reset(['selectedStudent', 'studentPhotos']);
+    }
+
+    // ===== COPY STUDENTS METHODS =====
+
+    public function openCopyModal()
+    {
+        $this->reset(['sourceProjectId', 'sourceStudents', 'selectedStudents', 'selectAll']);
+
+        // Get other projects from same school
+        $this->otherProjects = Project::where('school_id', $this->project->school_id)
+            ->where('id', '!=', $this->project->id)
+            ->withCount('students')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->toArray();
+
+        $this->showCopyModal = true;
+    }
+
+    public function closeCopyModal()
+    {
+        $this->showCopyModal = false;
+        $this->reset(['sourceProjectId', 'sourceStudents', 'selectedStudents', 'selectAll']);
+    }
+
+    public function updatedSourceProjectId($value)
+    {
+        $this->selectedStudents = [];
+        $this->selectAll = false;
+
+        if ($value) {
+            // Get students from source project that are NOT already in current project (by NIS or NISN)
+            $existingNis = $this->project->students()->pluck('nis')->toArray();
+            $existingNisn = $this->project->students()->pluck('nisn')->filter()->toArray();
+
+            $this->sourceStudents = Student::where('project_id', $value)
+                ->where('school_id', $this->project->school_id)
+                ->whereNotIn('nis', $existingNis)
+                ->when(!empty($existingNisn), function ($q) use ($existingNisn) {
+                    $q->whereNotIn('nisn', $existingNisn);
+                })
+                ->orderBy('name')
+                ->get()
+                ->toArray();
+        } else {
+            $this->sourceStudents = [];
+        }
+    }
+
+    public function updatedSelectAll($value)
+    {
+        if ($value) {
+            $this->selectedStudents = collect($this->sourceStudents)->pluck('id')->toArray();
+        } else {
+            $this->selectedStudents = [];
+        }
+    }
+
+    public function copyStudents()
+    {
+        if (empty($this->selectedStudents)) {
+            $this->dispatch('alert', [
+                'type' => 'error',
+                'title' => 'Error!',
+                'text' => 'Pilih minimal satu siswa untuk disalin.',
+            ]);
+            return;
+        }
+
+        $copied = 0;
+        $students = Student::whereIn('id', $this->selectedStudents)
+            ->where('school_id', $this->project->school_id)
+            ->get();
+
+        foreach ($students as $student) {
+            // Create copy of student for current project
+            $newStudent = $student->replicate();
+            $newStudent->project_id = $this->project->id;
+            $newStudent->created_at = now();
+            $newStudent->updated_at = now();
+            $newStudent->save();
+            $copied++;
+        }
+
+        $this->dispatch('alert', [
+            'type' => 'success',
+            'title' => 'Berhasil!',
+            'text' => "{$copied} siswa berhasil disalin ke project ini.",
+        ]);
+
+        $this->closeCopyModal();
     }
 
     public function sortBy($column)

@@ -108,7 +108,7 @@ class PhotoDownload extends Component
                 $filePath = storage_path('app/public/' . $photo->file_path);
                 if (file_exists($filePath)) {
                     $extension = pathinfo($photo->file_path, PATHINFO_EXTENSION);
-                    $zip->addFile($filePath, $photo->photo_type . '.' . $extension);
+                    $zip->addFile($filePath, $photo->photo_type . '_' . $photo->id . '.' . $extension);
                 }
             }
             $zip->close();
@@ -162,7 +162,7 @@ class PhotoDownload extends Component
                     $filePath = storage_path('app/public/' . $photo->file_path);
                     if (file_exists($filePath)) {
                         $extension = pathinfo($photo->file_path, PATHINFO_EXTENSION);
-                        $zip->addFile($filePath, $folderName . '/' . $photo->photo_type . '.' . $extension);
+                        $zip->addFile($filePath, $folderName . '/' . $photo->photo_type . '_' . $photo->id . '.' . $extension);
                     }
                 }
             }

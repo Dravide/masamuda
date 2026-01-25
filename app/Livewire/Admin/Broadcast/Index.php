@@ -102,7 +102,7 @@ class Index extends Component
     {
         // Load students if target is 'student', maybe limit or use search later
         if ($this->target === 'student') {
-            $this->students = Student::limit(100)->get(); // Warning: scaling issue
+            $this->students = Student::all();
         }
 
         return view('livewire.admin.broadcast.index')

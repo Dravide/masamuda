@@ -25,6 +25,9 @@
                         class="btn btn-outline-primary waves-effect waves-light">
                         <i class="fi fi-rr-file-import me-1"></i> Import Siswa
                     </a>
+                    <button wire:click="openCopyModal" class="btn btn-outline-success waves-effect waves-light">
+                        <i class="fi fi-rr-copy me-1"></i> Salin dari Project Lain
+                    </button>
                 @endif
                 <button wire:click="create" class="btn btn-primary waves-effect waves-light">
                     <i class="fi fi-rr-plus me-1"></i> Tambah {{ $isGuru ? 'Guru' : 'Siswa' }}
@@ -361,7 +364,7 @@
                                         <span class="fw-bold"
                                             id="student-name-{{ $student->id }}">{{ $student->name }}</span>
                                         <button class="btn btn-icon btn-sm btn-ghost-secondary rounded-circle"
-                                            onclick="copyToClipboard('{{ ($student->nisn ?? $student->nis) }}_{{ $student->name }}.jpg')"
+                                            onclick="copyToClipboard('{{ ($student->nisn ?? $student->nis) }}_{{ $student->name }}')"
                                             title="Copy Format Nama File">
                                             <i class="fi fi-rr-copy"></i>
                                         </button>
@@ -696,4 +699,88 @@
             });
         }
     </script>
+    <!-- Copy Students Modal -->
+    @if($showCopyModal)
+        <div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5);" tabindex="-1">
+            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"><i class="fi fi-rr-copy me-2"></i>Salin Siswa dari Project Lain</h5>
+                        <button wire:click="closeCopyModal" type="button" class="btn-close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Source Project Selection -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Pilih Project Sumber</label>
+                            <select class="form-select" wire:model.live="sourceProjectId">
+                                <option value="">-- Pilih Project --</option>
+                                @foreach($otherProjects as $proj)
+                                    <option value="{{ $proj['id'] }}">
+                                        {{ $proj['name'] }} ({{ $proj['students_count'] }} siswa)
+                                    </option>
+                                @endforeach
+                            </select>
+                            @if(count($otherProjects) === 0)
+                                <div class="text-muted mt-2 small">Tidak ada project lain yang tersedia.</div>
+                            @endif
+                        </div>
+
+                        <!-- Students List -->
+                        @if($sourceProjectId && count($sourceStudents) > 0)
+                            <div class="border rounded">
+                                <div class="bg-light p-3 border-bottom d-flex justify-content-between align-items-center">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="selectAll"
+                                            wire:model.live="selectAll">
+                                        <label class="form-check-label fw-bold" for="selectAll">Pilih Semua
+                                            ({{ count($sourceStudents) }} siswa tersedia)</label>
+                                    </div>
+                                    <span class="badge bg-primary">{{ count($selectedStudents) }} dipilih</span>
+                                </div>
+                                <div style="max-height: 300px; overflow-y: auto;">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-light sticky-top">
+                                            <tr>
+                                                <th style="width: 40px;"></th>
+                                                <th>NIS</th>
+                                                <th>Nama</th>
+                                                <th>Kelas</th>
+                                                <th>Jurusan</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($sourceStudents as $student)
+                                                <tr>
+                                                    <td>
+                                                        <input class="form-check-input" type="checkbox" value="{{ $student['id'] }}"
+                                                            wire:model.live="selectedStudents">
+                                                    </td>
+                                                    <td>{{ $student['nis'] }}</td>
+                                                    <td>{{ $student['name'] }}</td>
+                                                    <td>{{ $student['grade'] }} {{ $student['class_name'] }}</td>
+                                                    <td><span class="badge bg-info-subtle text-info">{{ $student['major'] }}</span>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        @elseif($sourceProjectId && count($sourceStudents) === 0)
+                            <div class="alert alert-info mb-0">
+                                <i class="fi fi-rr-info me-2"></i>Semua siswa dari project ini sudah ada di project saat ini,
+                                atau project sumber tidak memiliki siswa.
+                            </div>
+                        @endif
+                    </div>
+                    <div class="modal-footer">
+                        <button wire:click="closeCopyModal" type="button" class="btn btn-secondary">Batal</button>
+                        <button wire:click="copyStudents" type="button" class="btn btn-success" {{ count($selectedStudents) === 0 ? 'disabled' : '' }}>
+                            <i class="fi fi-rr-copy me-1"></i> Salin {{ count($selectedStudents) }} Siswa
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>
