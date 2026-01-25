@@ -123,6 +123,19 @@
                 </li>
             @endif
 
+            <!-- Siswa Menu -->
+            @if(Auth::user()->hasRole('siswa'))
+                <li class="menu-heading">
+                    <span class="menu-label">Menu Siswa</span>
+                </li>
+                <li class="menu-item {{ request()->routeIs('siswa.foto.index') ? 'active' : '' }}">
+                    <a class="menu-link" href="{{ route('siswa.foto.index') }}">
+                        <i class="fi fi-rr-picture"></i>
+                        <span class="menu-label">Galeri Foto</span>
+                    </a>
+                </li>
+            @endif
+
             <!-- Guru Menu -->
             @if(Auth::user()->hasRole('guru'))
                 <li class="menu-heading">

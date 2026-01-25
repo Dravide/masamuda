@@ -35,6 +35,7 @@ Route::get('/', function () {
 Route::get('/student/access/{token}', PublicStudentProfile::class)->name('student.public.profile');
 
 Route::get('/login', Login::class)->name('login')->middleware('guest');
+Route::get('/aktivasi', \App\Livewire\Auth\StudentActivation::class)->name('activation')->middleware('guest');
 
 Route::post('/logout', function () {
     // Audit Trail for Logout
@@ -89,6 +90,7 @@ Route::middleware(['auth', 'force.password.change'])->group(function () {
 
     Route::middleware(['role:siswa'])->prefix('siswa')->name('siswa.')->group(function () {
         Route::get('/dashboard', SiswaDashboard::class)->name('dashboard');
+        Route::get('/foto', \App\Livewire\Siswa\Photo\Index::class)->name('foto.index');
     });
 
     Route::middleware(['role:guru'])->prefix('guru')->name('guru.')->group(function () {
