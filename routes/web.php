@@ -35,7 +35,7 @@ Route::get('/', function () {
 Route::get('/student/access/{token}', PublicStudentProfile::class)->name('student.public.profile');
 
 Route::get('/login', Login::class)->name('login')->middleware('guest');
-Route::get('/aktivasi', \App\Livewire\Auth\StudentActivation::class)->name('activation')->middleware('guest');
+Route::get('/aktivasi', \App\Livewire\Auth\AccountActivation::class)->name('activation')->middleware('guest');
 
 Route::post('/logout', function () {
     // Audit Trail for Logout
