@@ -148,6 +148,12 @@
                         <span class="menu-label">Project</span>
                     </a>
                 </li>
+                <li class="menu-item {{ request()->routeIs('guru.foto.index') ? 'active' : '' }}">
+                    <a class="menu-link" href="{{ route('guru.foto.index') }}">
+                        <i class="fi fi-rr-picture"></i>
+                        <span class="menu-label">Galeri Foto</span>
+                    </a>
+                </li>
             @endif
 
 

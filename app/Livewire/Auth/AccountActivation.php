@@ -30,7 +30,7 @@ class AccountActivation extends Component
         return [
             'identifier' => 'required|numeric',
             'password' => 'required|min:6',
-            'whatsapp' => $this->type === 'siswa' ? 'required|numeric|digits_between:10,13' : 'nullable',
+            'whatsapp' => 'required|numeric|digits_between:10,13', // Required for both now
             'type' => 'required|in:siswa,guru',
         ];
     }
@@ -75,19 +75,24 @@ class AccountActivation extends Component
                 return;
             }
 
-            // For Guru, the User usually ALREADY exists (created by Admin).
-            // We treat "Activation" as "Setting your own password" for the first time?
-            // Or "Claiming" the account.
-            // If they are able to login, maybe they shouldn't use this?
-            // But let's allow it to Set Password.
+            // Check One-Time Activation using is_activated flag
+            if ($teacher->is_activated) {
+                $this->addError('identifier', 'Akun guru sudah diaktivasi. Silakan login.');
+                return;
+            }
 
-            $this->name = $teacher->user->name ?? 'Guru';
+            // Also check if user exists (should exist)
+            if (!$teacher->user) {
+                // Determine what to do if user missing? (Edge case)
+                // We assume user exists as per Admin logic.
+                $this->addError('identifier', 'Data user guru tidak valid. Hubungi admin.');
+                return;
+            }
+
+            $this->name = $teacher->user->name ?? 'Guru (Tanpa Nama)';
             $this->schoolName = $teacher->school->name ?? 'Sekolah Tidak Diketahui';
             $this->isExistingUser = true;
             $this->targetUserId = $teacher->user_id;
-
-            // Optional: Check if already "Activated" (e.g. changed password)?
-            // For now, let's allow re-activation (Reset) essentially, based on NIP possession.
         }
 
         $this->step = 2;
@@ -103,7 +108,7 @@ class AccountActivation extends Component
     {
         $this->validate([
             'password' => 'required|min:6',
-            'whatsapp' => $this->type === 'siswa' ? 'required|numeric|digits_between:10,13' : 'nullable',
+            'whatsapp' => 'required|numeric|digits_between:10,13',
         ]);
 
         if ($this->step !== 2)
@@ -130,12 +135,11 @@ class AccountActivation extends Component
             ]);
 
         } else {
-            // Guru - Update Existing User
+            // Guru - Update Existing User & Teacher
             $user = User::find($this->targetUserId);
             if ($user) {
                 $user->update([
                     'password' => Hash::make($this->password),
-                    // 'is_active' => true // Ensure active
                 ]);
             }
         }

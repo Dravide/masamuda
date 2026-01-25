@@ -97,6 +97,7 @@ Route::middleware(['auth', 'force.password.change'])->group(function () {
         Route::get('/dashboard', \App\Livewire\Guru\Dashboard::class)->name('dashboard');
         Route::get('/project', \App\Livewire\Guru\Project\Index::class)->name('project.index');
         Route::get('/project/{project}', \App\Livewire\Guru\Project\Detail::class)->name('project.detail');
+        Route::get('/foto', \App\Livewire\Guru\Photo\Index::class)->name('foto.index');
     });
 
 });

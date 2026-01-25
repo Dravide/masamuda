@@ -25,11 +25,11 @@
                             style="height: 60px; object-fit: contain;">
                     </a>
                 </div>
-                
+
                 <div class="text-center mb-4">
                     <h5 class="mb-1">Aktivasi {{ ucfirst($type) }}</h5>
                     @if($step === 1)
-                        <p>Masukkan {{ $type === 'siswa' ? 'NISN' : 'NIP' }} untuk memeriksa data.</p>
+                        <p>Masukkan {{ $type === 'siswa' ? 'NISN' : 'NIP / NIY / NIK' }} untuk memeriksa data.</p>
                     @else
                         <p>Konfirmasi data diri Anda dan buat password.</p>
                     @endif
@@ -40,14 +40,14 @@
                     <div class="mb-4">
                         <ul class="nav nav-pills nav-justified bg-light rounded" role="tablist">
                             <li class="nav-item">
-                                <a class="nav-link {{ $type === 'siswa' ? 'active' : '' }}" 
-                                   href="#" wire:click.prevent="$set('type', 'siswa')">
+                                <a class="nav-link {{ $type === 'siswa' ? 'active' : '' }}" href="#"
+                                    wire:click.prevent="$set('type', 'siswa')">
                                     Siswa
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {{ $type === 'guru' ? 'active' : '' }}" 
-                                   href="#" wire:click.prevent="$set('type', 'guru')">
+                                <a class="nav-link {{ $type === 'guru' ? 'active' : '' }}" href="#"
+                                    wire:click.prevent="$set('type', 'guru')">
                                     Guru
                                 </a>
                             </li>
@@ -57,9 +57,11 @@
                     <div wire:key="step-1-{{ $type }}">
                         <form wire:submit.prevent="checkAccount">
                             <div class="mb-4">
-                                <label class="form-label" for="identifier">{{ $type === 'siswa' ? 'NISN' : 'NIP' }}</label>
-                                <input type="text" class="form-control @error('identifier') is-invalid @enderror" id="identifier"
-                                    wire:model="identifier" placeholder="Masukkan {{ $type === 'siswa' ? 'NISN' : 'NIP' }}" autofocus>
+                                <label class="form-label"
+                                    for="identifier">{{ $type === 'siswa' ? 'NISN' : 'NIP / NIY / NIK' }}</label>
+                                <input type="text" class="form-control @error('identifier') is-invalid @enderror"
+                                    id="identifier" wire:model="identifier"
+                                    placeholder="Masukkan {{ $type === 'siswa' ? 'NISN' : 'NIP / NIY / NIK' }}" autofocus>
                                 @error('identifier') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
 
@@ -83,15 +85,13 @@
                         </div>
 
                         <form wire:submit.prevent="activate">
-                            @if($type === 'siswa')
-                                <div class="mb-4">
-                                    <label class="form-label" for="whatsapp">Nomor WhatsApp</label>
-                                    <input type="text" class="form-control @error('whatsapp') is-invalid @enderror"
-                                        id="whatsapp" wire:model="whatsapp" placeholder="Contoh: 08123456789" autofocus>
-                                    <div class="form-text">Nomor ini akan digunakan untuk info project.</div>
-                                    @error('whatsapp') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                </div>
-                            @endif
+                            <div class="mb-4">
+                                <label class="form-label" for="whatsapp">Nomor WhatsApp</label>
+                                <input type="text" class="form-control @error('whatsapp') is-invalid @enderror"
+                                    id="whatsapp" wire:model="whatsapp" placeholder="Contoh: 08123456789" autofocus>
+                                <div class="form-text">Nomor ini akan digunakan untuk info project.</div>
+                                @error('whatsapp') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
 
                             <div class="mb-4">
                                 <label class="form-label" for="password">Buat Password Baru</label>
@@ -121,7 +121,7 @@
                         </form>
                     </div>
                 @endif
-                
+
                 <div class="mt-4 text-center">
                     <p class="mb-0">Sudah punya akun? <a href="{{ route('login') }}"
                             class="fw-medium text-primary">Login Disini</a></p>
