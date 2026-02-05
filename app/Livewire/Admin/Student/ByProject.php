@@ -28,6 +28,8 @@ class ByProject extends Component
     public $sortColumn = 'name';
     public $sortDirection = 'asc';
     public $filterPhoto = '';
+    public $filterClass = '';
+    public $availableClasses = [];
 
     // Propagation Properties
     public $propagationFile;
@@ -80,6 +82,7 @@ class ByProject extends Component
         'sortColumn' => ['except' => 'name'],
         'sortDirection' => ['except' => 'asc'],
         'filterPhoto' => ['except' => ''],
+        'filterClass' => ['except' => ''],
     ];
 
     public function mount(Project $project)
@@ -93,6 +96,25 @@ class ByProject extends Component
         } else if ($this->isSmp) {
             $this->major = 'UMUM';
         }
+
+        // Load available classes for filter dropdown
+        if (!$this->isGuru) {
+            $this->loadAvailableClasses();
+        }
+    }
+
+    public function loadAvailableClasses()
+    {
+        $this->availableClasses = $this->project->students()
+            ->select('grade', 'class_name')
+            ->whereNotNull('grade')
+            ->whereNotNull('class_name')
+            ->groupBy('grade', 'class_name')
+            ->orderBy('grade')
+            ->orderBy('class_name')
+            ->get()
+            ->map(fn($s) => $s->grade . ' ' . $s->class_name)
+            ->toArray();
     }
 
     public function updatingSearch()
@@ -731,6 +753,12 @@ class ByProject extends Component
                 $q->whereDoesntHave('photos', function ($q) {
                     $q->where('project_id', $this->project->id);
                 });
+            })
+            ->when($this->filterClass, function ($q) {
+                $parts = explode(' ', $this->filterClass, 2);
+                $grade = $parts[0] ?? '';
+                $className = $parts[1] ?? '';
+                $q->where('grade', $grade)->where('class_name', $className);
             })
             ->orderBy($this->sortColumn, $this->sortDirection)
             ->paginate($this->perPage);

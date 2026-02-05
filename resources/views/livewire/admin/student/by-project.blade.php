@@ -304,6 +304,14 @@
                             placeholder="Cari {{ $isGuru ? 'Guru, NIP' : 'Siswa, NIS, NISN' }}..."
                             wire:model.live.debounce.300ms="search">
                     </div>
+                    @if(!$isGuru)
+                        <select class="form-select w-auto" wire:model.live="filterClass">
+                            <option value="">Semua Kelas</option>
+                            @foreach($availableClasses as $class)
+                                <option value="{{ $class }}">{{ $class }}</option>
+                            @endforeach
+                        </select>
+                    @endif
                     <select class="form-select w-auto" wire:model.live="filterPhoto">
                         <option value="">Semua Foto</option>
                         <option value="with">Sudah Upload</option>
