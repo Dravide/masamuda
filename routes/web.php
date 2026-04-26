@@ -85,6 +85,8 @@ Route::middleware(['auth', 'force.password.change'])->group(function () {
         Route::get('/project/{project}/data/import', ProjectStudentImport::class)->name('project.data.import');
         Route::get('/foto', ProjectPhotoDownload::class)->name('foto.index');
         Route::get('/foto/{project}', ProjectPhotoDownload::class)->name('foto.show');
+        Route::get('/foto/{project}/download-all', [\App\Http\Controllers\PhotoDownloadController::class, 'downloadAllSekolah'])->name('foto.download-all');
+        Route::get('/foto/{project}/download/{student}', [\App\Http\Controllers\PhotoDownloadController::class, 'downloadStudentSekolah'])->name('foto.download-student');
         Route::get('/guru', \App\Livewire\Sekolah\Teacher\Index::class)->name('guru.index');
     });
 
@@ -98,6 +100,8 @@ Route::middleware(['auth', 'force.password.change'])->group(function () {
         Route::get('/project', \App\Livewire\Guru\Project\Index::class)->name('project.index');
         Route::get('/project/{project}', \App\Livewire\Guru\Project\Detail::class)->name('project.detail');
         Route::get('/foto', \App\Livewire\Guru\Photo\Index::class)->name('foto.index');
+        Route::get('/project/{project}/download-all', [\App\Http\Controllers\PhotoDownloadController::class, 'downloadAllGuru'])->name('project.download-all');
+        Route::get('/project/{project}/download/{student}', [\App\Http\Controllers\PhotoDownloadController::class, 'downloadStudentGuru'])->name('project.download-student');
     });
 
 });
