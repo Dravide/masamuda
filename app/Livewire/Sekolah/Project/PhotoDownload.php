@@ -125,19 +125,14 @@ class PhotoDownload extends Component
 
     public function downloadAllPhotos()
     {
-        $students = Student::where('school_id', $this->school->id)
+        $hasPhotos = Student::where('school_id', $this->school->id)
             ->where('project_id', $this->project->id)
             ->whereHas('photos', function ($q) {
                 $q->where('project_id', $this->project->id);
             })
-            ->with([
-                'photos' => function ($q) {
-                    $q->where('project_id', $this->project->id);
-                }
-            ])
-            ->get();
+            ->exists();
 
-        if ($students->isEmpty()) {
+        if (!$hasPhotos) {
             $this->dispatch('alert', [
                 'type' => 'error',
                 'title' => 'Error!',
@@ -156,9 +151,19 @@ class PhotoDownload extends Component
 
         $zip = new ZipArchive;
         if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+            // Use cursor() to iterate without loading all students into memory at once
+            $students = Student::where('school_id', $this->school->id)
+                ->where('project_id', $this->project->id)
+                ->whereHas('photos', function ($q) {
+                    $q->where('project_id', $this->project->id);
+                })
+                ->cursor();
+
             foreach ($students as $student) {
                 $folderName = $student->nis . '_' . Str::slug($student->name);
-                foreach ($student->photos as $photo) {
+                // Load photos per student individually to keep memory low
+                $photos = $student->photos()->where('project_id', $this->project->id)->get();
+                foreach ($photos as $photo) {
                     $filePath = storage_path('app/public/' . $photo->file_path);
                     if (file_exists($filePath)) {
                         $extension = pathinfo($photo->file_path, PATHINFO_EXTENSION);
@@ -168,7 +173,20 @@ class PhotoDownload extends Component
             }
             $zip->close();
 
-            return response()->download($zipPath)->deleteFileAfterSend(true);
+            // Stream the file instead of loading it all into memory
+            return response()->stream(function () use ($zipPath) {
+                $stream = fopen($zipPath, 'rb');
+                while (!feof($stream)) {
+                    echo fread($stream, 2 * 1024 * 1024); // 2MB chunks
+                    flush();
+                }
+                fclose($stream);
+                @unlink($zipPath); // Clean up temp file
+            }, 200, [
+                'Content-Type' => 'application/zip',
+                'Content-Length' => filesize($zipPath),
+                'Content-Disposition' => 'attachment; filename="' . $zipFileName . '"',
+            ]);
         }
 
         $this->dispatch('alert', [
