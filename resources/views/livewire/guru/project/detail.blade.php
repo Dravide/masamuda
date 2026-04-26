@@ -20,15 +20,15 @@
                     <i class="fi fi-rr-arrow-left me-1"></i> Kembali
                 </button>
                 @if($myStudentId)
-                    <button wire:click="downloadStudentPhotos({{ $myStudentId }})"
+                    <a href="{{ route('guru.project.download-student', ['project' => $project->id, 'student' => $myStudentId]) }}"
                         class="btn btn-warning waves-effect waves-light">
                         <i class="fi fi-rr-user-pen me-1"></i> Unduh Foto Saya
-                    </button>
+                    </a>
                 @endif
                 @if($withPhotoCount > 0)
-                    <button wire:click="downloadAllPhotos" class="btn btn-success waves-effect waves-light">
+                    <a href="{{ route('guru.project.download-all', $project->id) }}" class="btn btn-success waves-effect waves-light">
                         <i class="fi fi-rr-download me-1"></i> Unduh Semua Foto
-                    </button>
+                    </a>
                 @endif
             </div>
         </div>
@@ -168,10 +168,10 @@
                                 </td>
                                 <td class="text-center">
                                     @if($student->photos_count > 0)
-                                        <button wire:click="downloadStudentPhotos({{ $student->id }})"
+                                        <a href="{{ route('guru.project.download-student', ['project' => $project->id, 'student' => $student->id]) }}"
                                             class="btn btn-sm btn-subtle-success btn-icon waves-effect" title="Unduh Foto">
                                             <i class="fi fi-rr-download"></i>
-                                        </button>
+                                        </a>
                                     @else
                                         <span class="text-muted small">-</span>
                                     @endif

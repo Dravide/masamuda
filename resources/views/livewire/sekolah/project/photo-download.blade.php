@@ -83,9 +83,9 @@
                         <i class="fi fi-rr-arrow-left me-1"></i> Kembali
                     </button>
                     @if($withPhotoCount > 0)
-                        <button wire:click="downloadAllPhotos" class="btn btn-success waves-effect waves-light">
+                        <a href="{{ route('sekolah.foto.download-all', $project->id) }}" class="btn btn-success waves-effect waves-light">
                             <i class="fi fi-rr-download me-1"></i> Unduh Semua ({{ $withPhotoCount }} siswa)
-                        </button>
+                        </a>
                     @endif
                 </div>
             </div>
@@ -214,10 +214,10 @@
                                     </td>
                                     <td class="text-center">
                                         @if($student->photos_count > 0)
-                                            <button wire:click="downloadStudentPhotos({{ $student->id }})"
+                                            <a href="{{ route('sekolah.foto.download-student', ['project' => $project->id, 'student' => $student->id]) }}"
                                                 class="btn btn-sm btn-success waves-effect">
                                                 <i class="fi fi-rr-download me-1"></i> Unduh
-                                            </button>
+                                            </a>
                                         @else
                                             <span class="text-muted small">Tidak ada foto</span>
                                         @endif

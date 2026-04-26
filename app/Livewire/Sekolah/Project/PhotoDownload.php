@@ -8,8 +8,6 @@ use App\Models\Student;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
-use ZipArchive;
-use Illuminate\Support\Str;
 
 class PhotoDownload extends Component
 {
@@ -72,127 +70,16 @@ class PhotoDownload extends Component
 
     public function downloadStudentPhotos($studentId)
     {
-        $student = Student::where('school_id', $this->school->id)
-            ->where('project_id', $this->project->id)
-            ->findOrFail($studentId);
-
-        $photos = $student->photos()->where('project_id', $this->project->id)->get();
-
-        if ($photos->isEmpty()) {
-            $this->dispatch('alert', [
-                'type' => 'error',
-                'title' => 'Error!',
-                'text' => 'Siswa ini belum memiliki foto.',
-            ]);
-            return;
-        }
-
-        if ($photos->count() === 1) {
-            // Single file download
-            $photo = $photos->first();
-            return response()->download(storage_path('app/public/' . $photo->file_path));
-        }
-
-        // Multiple files - create zip
-        $zipFileName = 'foto_' . Str::slug($student->name) . '_' . $student->nis . '.zip';
-        $zipPath = storage_path('app/temp/' . $zipFileName);
-
-        // Ensure temp directory exists
-        if (!file_exists(storage_path('app/temp'))) {
-            mkdir(storage_path('app/temp'), 0755, true);
-        }
-
-        $zip = new ZipArchive;
-        if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
-            foreach ($photos as $photo) {
-                $filePath = storage_path('app/public/' . $photo->file_path);
-                if (file_exists($filePath)) {
-                    $extension = pathinfo($photo->file_path, PATHINFO_EXTENSION);
-                    $zip->addFile($filePath, $photo->photo_type . '_' . $photo->id . '.' . $extension);
-                }
-            }
-            $zip->close();
-
-            return response()->download($zipPath)->deleteFileAfterSend(true);
-        }
-
-        $this->dispatch('alert', [
-            'type' => 'error',
-            'title' => 'Error!',
-            'text' => 'Gagal membuat file zip.',
+        return redirect()->route('sekolah.foto.download-student', [
+            'project' => $this->project->id,
+            'student' => $studentId,
         ]);
     }
 
     public function downloadAllPhotos()
     {
-        $hasPhotos = Student::where('school_id', $this->school->id)
-            ->where('project_id', $this->project->id)
-            ->whereHas('photos', function ($q) {
-                $q->where('project_id', $this->project->id);
-            })
-            ->exists();
-
-        if (!$hasPhotos) {
-            $this->dispatch('alert', [
-                'type' => 'error',
-                'title' => 'Error!',
-                'text' => 'Tidak ada foto untuk diunduh.',
-            ]);
-            return;
-        }
-
-        $zipFileName = 'foto_' . Str::slug($this->project->name) . '_' . date('Ymd_His') . '.zip';
-        $zipPath = storage_path('app/temp/' . $zipFileName);
-
-        // Ensure temp directory exists
-        if (!file_exists(storage_path('app/temp'))) {
-            mkdir(storage_path('app/temp'), 0755, true);
-        }
-
-        $zip = new ZipArchive;
-        if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
-            // Use cursor() to iterate without loading all students into memory at once
-            $students = Student::where('school_id', $this->school->id)
-                ->where('project_id', $this->project->id)
-                ->whereHas('photos', function ($q) {
-                    $q->where('project_id', $this->project->id);
-                })
-                ->cursor();
-
-            foreach ($students as $student) {
-                $folderName = $student->nis . '_' . Str::slug($student->name);
-                // Load photos per student individually to keep memory low
-                $photos = $student->photos()->where('project_id', $this->project->id)->get();
-                foreach ($photos as $photo) {
-                    $filePath = storage_path('app/public/' . $photo->file_path);
-                    if (file_exists($filePath)) {
-                        $extension = pathinfo($photo->file_path, PATHINFO_EXTENSION);
-                        $zip->addFile($filePath, $folderName . '/' . $photo->photo_type . '_' . $photo->id . '.' . $extension);
-                    }
-                }
-            }
-            $zip->close();
-
-            // Stream the file instead of loading it all into memory
-            return response()->stream(function () use ($zipPath) {
-                $stream = fopen($zipPath, 'rb');
-                while (!feof($stream)) {
-                    echo fread($stream, 2 * 1024 * 1024); // 2MB chunks
-                    flush();
-                }
-                fclose($stream);
-                @unlink($zipPath); // Clean up temp file
-            }, 200, [
-                'Content-Type' => 'application/zip',
-                'Content-Length' => filesize($zipPath),
-                'Content-Disposition' => 'attachment; filename="' . $zipFileName . '"',
-            ]);
-        }
-
-        $this->dispatch('alert', [
-            'type' => 'error',
-            'title' => 'Error!',
-            'text' => 'Gagal membuat file zip.',
+        return redirect()->route('sekolah.foto.download-all', [
+            'project' => $this->project->id,
         ]);
     }
 
