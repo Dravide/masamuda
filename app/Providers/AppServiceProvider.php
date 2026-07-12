@@ -21,9 +21,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // if (env('APP_ENV') !== 'local' || request()->header('X-Forwarded-Proto') === 'https') {
-        //     URL::forceScheme('https');
-        // }
+        // Force HTTPS in non-local environments (behind reverse proxy)
+        if (app()->environment('production') || request()->header('X-Forwarded-Proto') === 'https') {
+            URL::forceScheme('https');
+        }
 
         // Use custom pagination view globally
         Paginator::defaultView('vendor.livewire.gxon');

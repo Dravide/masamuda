@@ -28,19 +28,18 @@ class ForcePasswordChange
             }
 
             // Allow dashboard routes where the modal will be shown
-            // Adjust these route names based on your actual dashboard routes
-            if ($request->routeIs('sekolah.dashboard') || $request->routeIs('admin.dashboard') || $request->routeIs('siswa.dashboard')) {
+            if ($request->routeIs('admin.dashboard', 'sekolah.dashboard', 'siswa.dashboard', 'guru.dashboard')) {
                 return $next($request);
             }
-            
+
             // Redirect any other attempt to the respective dashboard
             $role = Auth::user()->role;
-            if (in_array($role, ['admin', 'sekolah', 'siswa'])) {
+            if (in_array($role, ['admin', 'sekolah', 'siswa', 'guru'])) {
                 return redirect()->route($role . '.dashboard');
             }
-            
-            // Fallback
-            return redirect('/');
+
+            // Fallback to login
+            return redirect()->route('login');
         }
 
         return $next($request);
