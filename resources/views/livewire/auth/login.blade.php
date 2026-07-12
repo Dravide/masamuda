@@ -48,7 +48,7 @@
                                 <input class="form-check-input" type="checkbox" id="rememberMe" wire:model="remember">
                                 <label class="form-check-label" for="rememberMe"> Remember Me </label>
                             </div>
-                            <a href="#">Lupa Password?</a>
+                            <a href="{{ route('forgot-password') }}">Lupa Password?</a>
                         </div>
                     </div>
                     <div class="mb-3">

@@ -35,6 +35,7 @@ Route::get('/', function () {
 Route::get('/student/access/{token}', PublicStudentProfile::class)->name('student.public.profile');
 
 Route::get('/login', Login::class)->name('login')->middleware('guest');
+Route::get('/forgot-password', \App\Livewire\Auth\ForgotPassword::class)->name('forgot-password')->middleware('guest');
 Route::get('/aktivasi', \App\Livewire\Auth\AccountActivation::class)->name('activation')->middleware('guest');
 
 Route::post('/logout', function () {
