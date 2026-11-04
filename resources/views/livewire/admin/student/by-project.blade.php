@@ -20,6 +20,9 @@
                 <button wire:click="exportExcel" class="btn btn-success waves-effect waves-light">
                     <i class="fi fi-rr-file-excel me-1"></i> Export Excel
                 </button>
+                <a href="{{ route('admin.project.download-all', $project->id) }}" class="btn btn-outline-success waves-effect waves-light">
+                    <i class="fi fi-rr-download me-1"></i> Unduh Semua Foto
+                </a>
                 @if(!$isGuru)
                     <a href="{{ route('admin.project.siswa.import', $project) }}"
                         class="btn btn-outline-primary waves-effect waves-light">
@@ -269,11 +272,20 @@
                                                             <i class="fi fi-rr-trash"></i>
                                                         </button>
                                                     </div>
-                                                    <div class="card-footer bg-white border-top-0 text-center py-2">
+                                                    <div class="card-footer bg-white border-top-0 d-flex justify-content-between align-items-center py-2 px-3">
                                                         <span
                                                             class="badge bg-{{ $photo['is_main'] ? 'primary' : 'secondary' }} rounded-pill">
                                                             {{ $photo['type'] }}
                                                         </span>
+                                                        @php
+                                                            $studentIdentifier = $selectedStudent->nisn ?: $selectedStudent->nis;
+                                                            $safeStudentName = str_replace(['/', '\\', ':', '*', '?', '"', '<', '>', '|'], '', $selectedStudent->name);
+                                                            $photoExt = pathinfo($photo['path'], PATHINFO_EXTENSION);
+                                                            $singleDownloadName = "{$studentIdentifier}_{$safeStudentName}.{$photoExt}";
+                                                        @endphp
+                                                        <a href="{{ $photo['url'] }}" download="{{ $singleDownloadName }}" class="btn btn-sm btn-outline-primary" title="Download Foto">
+                                                            <i class="fi fi-rr-download"></i>
+                                                        </a>
                                                     </div>
                                                 </div>
                                             </div>
@@ -420,11 +432,19 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <button wire:click="openPhotoModal('{{ $student->id }}')"
-                                        class="btn btn-sm {{ $student->photo || $student->photos->count() > 0 ? 'btn-outline-primary' : 'btn-outline-secondary disabled' }}"
-                                        {{ !$student->photo && $student->photos->count() == 0 ? 'disabled' : '' }}>
-                                        <i class="fi fi-rr-picture me-1"></i> Detail Foto
-                                    </button>
+                                    <div class="d-flex gap-1 align-items-center">
+                                        <button wire:click="openPhotoModal('{{ $student->id }}')"
+                                            class="btn btn-sm {{ $student->photo || $student->photos->count() > 0 ? 'btn-outline-primary' : 'btn-outline-secondary disabled' }}"
+                                            {{ !$student->photo && $student->photos->count() == 0 ? 'disabled' : '' }}>
+                                            <i class="fi fi-rr-picture me-1"></i> Detail
+                                        </button>
+                                        @if($student->photos_count > 0 || $student->photos->count() > 0)
+                                            <a href="{{ route('admin.project.download-student', ['project' => $project->id, 'student' => $student->id]) }}"
+                                                class="btn btn-sm btn-outline-success" title="Unduh Foto {{ $isGuru ? 'Guru' : 'Siswa' }}">
+                                                <i class="fi fi-rr-download"></i>
+                                            </a>
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="text-end">
                                     <div class="d-flex gap-1 justify-content-end">

@@ -13,6 +13,26 @@ use ZipArchive;
 class PhotoDownloadController extends Controller
 {
     /**
+     * Download all photos for a project (Admin role).
+     */
+    public function downloadAllAdmin(Request $request, Project $project)
+    {
+        return $this->buildAndStreamZip($project, $project->school_id);
+    }
+
+    /**
+     * Download a single student's photos (Admin role).
+     */
+    public function downloadStudentAdmin(Request $request, Project $project, Student $student)
+    {
+        if ($student->project_id !== $project->id) {
+            abort(404, 'Siswa tidak ditemukan dalam project ini.');
+        }
+
+        return $this->downloadStudentPhotos($student, $project);
+    }
+
+    /**
      * Download all photos for a project (Sekolah role).
      */
     public function downloadAllSekolah(Request $request, Project $project)
@@ -112,13 +132,18 @@ class PhotoDownloadController extends Controller
             ->cursor();
 
         foreach ($students as $student) {
-            $folderName = $student->nis . '_' . Str::slug($student->name);
+            $identifier = $student->nisn ?: $student->nis;
+            $safeName = str_replace(['/', '\\', ':', '*', '?', '"', '<', '>', '|'], '', $student->name);
             $photos = $student->photos()->where('project_id', $project->id)->get();
+            $photoIndex = 1;
             foreach ($photos as $photo) {
                 $filePath = storage_path('app/public/' . $photo->file_path);
                 if (file_exists($filePath)) {
                     $extension = pathinfo($photo->file_path, PATHINFO_EXTENSION);
-                    $zip->addFile($filePath, $folderName . '/' . $photo->photo_type . '_' . $photo->id . '.' . $extension);
+                    $suffix = $photos->count() > 1 ? "_{$photoIndex}" : '';
+                    $fileName = "{$identifier}_{$safeName}{$suffix}.{$extension}";
+                    $zip->addFile($filePath, $fileName);
+                    $photoIndex++;
                 }
             }
         }
@@ -163,17 +188,23 @@ class PhotoDownloadController extends Controller
             return back()->with('error', 'Siswa ini belum memiliki foto.');
         }
 
+        $identifier = $student->nisn ?: $student->nis;
+        $safeName = str_replace(['/', '\\', ':', '*', '?', '"', '<', '>', '|'], '', $student->name);
+
         if ($photos->count() === 1) {
             $photo = $photos->first();
             $filePath = storage_path('app/public/' . $photo->file_path);
             if (!file_exists($filePath)) {
                 return back()->with('error', 'File foto tidak ditemukan.');
             }
-            return response()->download($filePath);
+            $extension = pathinfo($photo->file_path, PATHINFO_EXTENSION);
+            $downloadFileName = "{$identifier}_{$safeName}.{$extension}";
+
+            return response()->download($filePath, $downloadFileName);
         }
 
         // Multiple files - create zip
-        $zipFileName = 'foto_' . Str::slug($student->name) . '_' . $student->nis . '.zip';
+        $zipFileName = "{$identifier}_{$safeName}.zip";
         $zipPath = storage_path('app/temp/' . $zipFileName);
 
         if (!file_exists(storage_path('app/temp'))) {
@@ -182,16 +213,19 @@ class PhotoDownloadController extends Controller
 
         $zip = new ZipArchive;
         if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+            $photoIndex = 1;
             foreach ($photos as $photo) {
                 $filePath = storage_path('app/public/' . $photo->file_path);
                 if (file_exists($filePath)) {
                     $extension = pathinfo($photo->file_path, PATHINFO_EXTENSION);
-                    $zip->addFile($filePath, $photo->photo_type . '_' . $photo->id . '.' . $extension);
+                    $fileName = "{$identifier}_{$safeName}_{$photoIndex}.{$extension}";
+                    $zip->addFile($filePath, $fileName);
+                    $photoIndex++;
                 }
             }
             $zip->close();
 
-            return response()->download($zipPath)->deleteFileAfterSend(true);
+            return response()->download($zipPath, $zipFileName)->deleteFileAfterSend(true);
         }
 
         return back()->with('error', 'Gagal membuat file zip.');

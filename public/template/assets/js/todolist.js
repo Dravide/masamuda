@@ -75,11 +75,13 @@ $(document).ready(function () {
 		updateTodoStyles($(this));
 	});
 	
-	todoListSortable = document.getElementById('todoList'),
-	new Sortable(todoListSortable, {
-		handle: '.sortable-handle',
-		animation: 150
-	});
+	const todoListSortable = document.getElementById('todoList');
+	if (todoListSortable && typeof Sortable !== 'undefined') {
+		new Sortable(todoListSortable, {
+			handle: '.sortable-handle',
+			animation: 150
+		});
+	}
 	
 	$('#todoList').on('click', '.item-delete', function(){
 		$(this).parent().remove();

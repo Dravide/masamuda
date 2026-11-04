@@ -27,13 +27,13 @@
                 </div>
                 <div class="text-center mb-5">
                     <h5 class="mb-1">Login ke Masamuda</h5>
-                    <p>Masukan username dan password untuk melanjutkan.</p>
+                    <p>Masukan username atau email dan password untuk melanjutkan.</p>
                 </div>
                 <form wire:submit.prevent="login">
                     <div class="mb-4">
-                        <label class="form-label" for="username">Username</label>
+                        <label class="form-label" for="username">Username atau Email</label>
                         <input type="text" class="form-control @error('username') is-invalid @enderror" id="username"
-                            wire:model="username" placeholder="Username">
+                            wire:model="username" placeholder="Username atau Email">
                         @error('username') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
                     <div class="mb-4">

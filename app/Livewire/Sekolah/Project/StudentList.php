@@ -182,7 +182,10 @@ class StudentList extends Component
             });
         }
 
-        $students = $query->orderBy($this->sortColumn, $this->sortDirection)
+        $students = $query->withCount(['photos' => function ($q) {
+                $q->where('project_id', $this->project->id);
+            }])
+            ->orderBy($this->sortColumn, $this->sortDirection)
             ->paginate($this->perPage);
 
         $targetLabel = $this->isGuru ? 'Guru' : 'Siswa';

@@ -75,6 +75,8 @@ Route::middleware(['auth', 'force.password.change'])->group(function () {
         Route::get('/project', AdminStudentProjectList::class)->name('project.index');
         Route::get('/project/{project}', AdminStudentByProject::class)->name('project.show');
         Route::get('/project/{project}/siswa/import', \App\Livewire\Admin\Student\Import::class)->name('project.siswa.import');
+        Route::get('/project/{project}/download-all', [\App\Http\Controllers\PhotoDownloadController::class, 'downloadAllAdmin'])->name('project.download-all');
+        Route::get('/project/{project}/download/{student}', [\App\Http\Controllers\PhotoDownloadController::class, 'downloadStudentAdmin'])->name('project.download-student');
         Route::get('/settings', AdminSettings::class)->name('settings');
         Route::get('/broadcast', \App\Livewire\Admin\Broadcast\Index::class)->name('broadcast.index');
     });

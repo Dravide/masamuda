@@ -26,7 +26,13 @@
                                     <div class="card-body p-2 text-center">
                                         <span class="badge bg-secondary mb-1">{{ ucfirst($photo['photo_type']) }}</span>
                                         <div class="mt-2">
-                                            <a href="{{ asset('storage/' . $photo['file_path']) }}" download
+                                            @php
+                                                $studentNisn = $photo['student']['nisn'] ?? $photo['student']['nis'] ?? Auth::user()->username;
+                                                $studentName = str_replace(['/', '\\', ':', '*', '?', '"', '<', '>', '|'], '', $photo['student']['name'] ?? Auth::user()->name);
+                                                $ext = pathinfo($photo['file_path'], PATHINFO_EXTENSION);
+                                                $fileName = "{$studentNisn}_{$studentName}.{$ext}";
+                                            @endphp
+                                            <a href="{{ asset('storage/' . $photo['file_path']) }}" download="{{ $fileName }}"
                                                 class="btn btn-sm btn-outline-primary waves-effect waves-light">
                                                 <i class="fi fi-rr-download me-1"></i> Download
                                             </a>

@@ -149,7 +149,7 @@
                                                 <span
                                                     class="badge bg-info-subtle text-info mb-2 d-block">{{ $photo->photo_type }}</span>
                                                 <a href="{{ asset('storage/' . $photo->file_path) }}"
-                                                    download="{{ $student->nis }}_{{ $photo->photo_type }}.{{ pathinfo($photo->file_path, PATHINFO_EXTENSION) }}"
+                                                    download="{{ ($student->nisn ?: $student->nis) }}_{{ str_replace(['/', '\\', ':', '*', '?', '\"', '<', '>', '|'], '', $student->name) }}.{{ pathinfo($photo->file_path, PATHINFO_EXTENSION) }}"
                                                     class="btn btn-sm btn-success w-100">
                                                     <i class="fi fi-rr-download me-1"></i> Unduh
                                                 </a>

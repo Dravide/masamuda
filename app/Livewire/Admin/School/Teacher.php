@@ -80,6 +80,7 @@ class Teacher extends Component
             'password' => Hash::make($this->nip), // Default password is NIP
             'role' => 'guru',
             'is_active' => $this->isActive,
+            'password_change_required' => true,
         ]);
 
         // Create Teacher Linked to School

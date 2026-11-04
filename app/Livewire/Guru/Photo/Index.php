@@ -22,7 +22,7 @@ class Index extends Component
 
         if ($nips->isNotEmpty()) {
             $this->groupedPhotos = StudentPhoto::whereIn('student_id', $nips)
-                ->with('project')
+                ->with(['project', 'student'])
                 ->get()
                 ->groupBy(function ($photo) {
                     return $photo->project->name ?? 'Project Tanpa Nama';

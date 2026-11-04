@@ -41,7 +41,18 @@ class Login extends Component
             return;
         }
 
-        if (Auth::attempt(['username' => $this->username, 'password' => $this->password], $this->remember)) {
+        // Check whether input is email or username
+        $fieldType = filter_var($this->username, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        if (Auth::attempt([$fieldType => $this->username, 'password' => $this->password], $this->remember)) {
+            if (! Auth::user()->is_active) {
+                Auth::logout();
+                session()->invalidate();
+                session()->regenerateToken();
+                $this->addError('username', 'Akun Anda sedang dinonaktifkan. Silakan hubungi administrator.');
+                return;
+            }
+
             RateLimiter::clear($key);
             session()->regenerate();
 

@@ -117,11 +117,20 @@ class AccountActivation extends Component
         $user = null;
 
         if ($this->type === 'siswa') {
+            if (User::where('username', $this->identifier)->exists()) {
+                $this->addError('identifier', 'Akun dengan NISN ini sudah aktif. Silakan login.');
+                return;
+            }
+
             $student = Student::where('nisn', $this->identifier)->first();
+            if (!$student) {
+                $this->addError('identifier', 'Data siswa dengan NISN ini tidak ditemukan.');
+                return;
+            }
 
             // Create User
             $user = User::create([
-                'name' => $this->name,
+                'name' => $student->name,
                 'username' => $this->identifier,
                 'email' => $student->email ?? $this->identifier . '@student.masamuda.id',
                 'password' => Hash::make($this->password),
@@ -135,13 +144,29 @@ class AccountActivation extends Component
             ]);
 
         } else {
-            // Guru - Update Existing User & Teacher
-            $user = User::find($this->targetUserId);
-            if ($user) {
-                $user->update([
-                    'password' => Hash::make($this->password),
-                ]);
+            // Guru - Verifikasi kembali data guru via NIP dan status aktivasi
+            $teacher = Teacher::with('user')->where('nip', $this->identifier)->first();
+
+            if (!$teacher || !$teacher->user) {
+                $this->addError('identifier', 'Data guru atau user tidak ditemukan.');
+                return;
             }
+
+            if ($teacher->is_activated) {
+                $this->addError('identifier', 'Akun guru sudah diaktivasi. Silakan login.');
+                return;
+            }
+
+            $user = $teacher->user;
+            $user->update([
+                'password' => Hash::make($this->password),
+                'is_active' => true,
+            ]);
+
+            $teacher->update([
+                'whatsapp' => $this->whatsapp,
+                'is_activated' => true,
+            ]);
         }
 
         if ($user) {
