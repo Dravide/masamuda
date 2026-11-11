@@ -57,5 +57,10 @@ class DatabaseSeeder extends Seeder
                 'is_active' => true,
             ]
         );
+
+        $this->call([
+            MajorSeeder::class,
+            SampleProjectSeeder::class,
+        ]);
     }
 }

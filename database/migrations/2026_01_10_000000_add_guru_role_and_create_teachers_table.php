@@ -3,7 +3,6 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
 return new class extends Migration {
     /**
@@ -11,12 +10,9 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        // Modify the enum role to include 'guru'
-        // Since ALTER TABLE MODIFY COLUMN for ENUM is somewhat intricate in raw SQL across drivers,
-        // and Laravel doesn't natively support changing enum options via Schema builder easily without doctrine/dbal and even then it's tricky.
-        // We will try a raw statement for MySQL which is likely the DB being used.
-
-        DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'sekolah', 'siswa', 'guru') DEFAULT 'siswa'");
+        Schema::table('users', function (Blueprint $table) {
+            $table->enum('role', ['admin', 'sekolah', 'siswa', 'guru'])->default('siswa')->change();
+        });
 
         Schema::create('teachers', function (Blueprint $table) {
             $table->id();
@@ -34,7 +30,8 @@ return new class extends Migration {
     {
         Schema::dropIfExists('teachers');
 
-        // Revert role enum - careful if 'guru' rows exist
-        DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'sekolah', 'siswa') DEFAULT 'siswa'");
+        Schema::table('users', function (Blueprint $table) {
+            $table->enum('role', ['admin', 'sekolah', 'siswa'])->default('siswa')->change();
+        });
     }
 };

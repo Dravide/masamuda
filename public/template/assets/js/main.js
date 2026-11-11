@@ -38,15 +38,18 @@ const initAppToggler = () => {
 };
 
 const saerchList = () => {
+	const searchInput = $("#searchInput");
+	if (searchInput.length === 0) return;
+
 	let listItems = [];
 
 	// JSON load
-	$.getJSON("assets/ajax/search.json", function(data) {
+	$.getJSON("/template/assets/ajax/search.json", function(data) {
 		listItems = data.listItems;
 	});
 
 	// Search functionality
-	$("#searchInput").on("keyup", function() {
+	searchInput.on("keyup", function() {
 		let query = $(this).val().toLowerCase();
 		let searchContainer = $("#searchContainer");
 		searchContainer.empty();
